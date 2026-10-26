@@ -23,7 +23,9 @@ LEVEL_KEY = re.compile(r"^bibit_([\d.]+)_")
 # Weight of each criterion (percentile rank inside the category, higher = better). Sums to 1 per category.
 WEIGHTS = {
     "pasar_uang": {"return_1y_pct": 0.40, "aum_idr": 0.30, "drawdown_1y_pct": 0.30},
-    "pendapatan_tetap": {"risk_adj": 0.40, "drawdown_1y_pct": 0.30, "aum_idr": 0.30},
+    # A flat price is not safety: a fund of corporate bonds can look calm until one issuer defaults. So the share of
+    # government bonds in the top holdings (fact sheet) counts too. Unknown share is ranked in the middle, not punished.
+    "pendapatan_tetap": {"return_3y_ann": 0.25, "drawdown_1y_pct": 0.15, "aum_idr": 0.25, "gov_top10_pct": 0.35},
     # Index funds get the biggest weight: simple, transparent holdings, and one lucky active year proves little.
     "saham": {"drawdown_1y_pct": 0.25, "aum_idr": 0.25, "index_like": 0.35, "return_3y_pct": 0.15},
     "campuran": {"drawdown_1y_pct": 0.35, "aum_idr": 0.25, "return_3y_pct": 0.40},
@@ -33,7 +35,8 @@ CRITERIA_LABEL = {
     "return_3y_pct": "return 3 tahun",
     "drawdown_1y_pct": "penurunan terdalam kecil",
     "aum_idr": "dana kelolaan besar",
-    "risk_adj": "return 3 tahun per risiko turun",
+    "return_3y_ann": "return 3 tahun per tahun",
+    "gov_top10_pct": "isi didominasi obligasi negara",
     "index_like": "berbasis indeks",
 }
 
@@ -64,19 +67,32 @@ def eligible(products: pd.DataFrame, category: str, syariah_only: bool, min_aum:
     return df.copy()
 
 
+OPTIONAL = {"gov_top10_pct"}   # criteria that may be unknown for some funds, or absent from an older products file
+
+
+def _ann(total_pct: float, years: float) -> float:
+    r = metrics.annualize_total_return(total_pct, years) if pd.notna(total_pct) else None
+    return np.nan if r is None else r * 100
+
+
 def rank_category(products: pd.DataFrame, category: str, syariah_only: bool = False,
                   min_aum: float = MIN_AUM_IDR) -> pd.DataFrame:
     """Eligible funds of one category, best first, with a score and a plain-language reason."""
     df = eligible(products, category, syariah_only, min_aum)
     if df.empty:
         return df
-    df["risk_adj"] = (df["return_3y_pct"] / 3.0) / df["drawdown_1y_pct"].abs().clip(lower=1.0) \
-        if "return_3y_pct" in df and df["return_3y_pct"].notna().any() else np.nan
+    df["return_3y_ann"] = df["return_3y_pct"].map(lambda x: _ann(x, 3))
+    if "gov_top10_pct" not in df:                      # a products file from before fact sheets were read
+        df["gov_top10_pct"] = np.nan
     df["index_like"] = df["name"].str.contains(INDEX_LIKE).astype(float)
-    weights = WEIGHTS.get(category, WEIGHTS["campuran"])
+    weights = {c: w for c, w in WEIGHTS.get(category, WEIGHTS["campuran"]).items() if df[c].notna().any() or c not in OPTIONAL}
+    total_w = sum(weights.values())
     score = pd.Series(0.0, index=df.index)
     for col, w in weights.items():
-        score += w * df[col].rank(pct=True, na_option="bottom")
+        ranks = df[col].rank(pct=True, na_option="bottom")
+        if col in OPTIONAL:                            # unknown is neither rewarded nor punished
+            ranks = ranks.where(df[col].notna(), 0.5)
+        score += (w / total_w) * ranks
     df["score"] = (score * 100).round(1)
     df = df.sort_values(["score", "aum_idr"], ascending=False)
 

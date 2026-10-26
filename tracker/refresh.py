@@ -20,6 +20,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from . import factsheet
 from .products import is_syariah
 
 DATA = Path(__file__).parent.parent / "data"
@@ -47,7 +48,7 @@ UNITS = {"T": 1e12, "B": 1e9, "M": 1e6}
 FUND_COLUMNS = ["product_id", "name", "jenis_bibit", "category", "syariah_dari_nama",
                 "return_1d_pct", "return_1m_pct", "return_3m_pct", "return_ytd_pct", "return_1y_pct",
                 "return_3y_pct", "return_5y_pct", "return_10y_pct", "last_nav", "drawdown_1y_pct",
-                "aum_idr", "url", "as_of"]
+                "aum_idr", "url", "as_of", "gov_top10_pct", "top10_n", "factsheet_date"]
 
 _JS_FUND_ROWS = """() => {
   const t = [...document.querySelectorAll('table')].find(x => x.innerText.includes('Last NAV'));
@@ -390,18 +391,69 @@ def format_markdown(output: str) -> str:
     return "\n".join([head if head != first else f"**{first}**", *[f"- {code_files(ln)}" for ln in rest]])
 
 
+FACTSHEET_COLUMNS = ["gov_top10_pct", "top10_n", "factsheet_date"]
+
+
+def add_factsheets(funds: pd.DataFrame, old: pd.DataFrame | None, log=print) -> tuple[pd.DataFrame, list[str]]:
+    """Fill the fact sheet columns for bond funds from each fund's latest fact sheet.
+
+    A fund whose fact sheet cannot be fetched keeps its previous values (never erased), and is named in the warnings.
+    """
+    funds = funds.copy()
+    for col in FACTSHEET_COLUMNS:
+        funds[col] = None
+    if old is not None and set(FACTSHEET_COLUMNS) <= set(old.columns):
+        prev = old.set_index("product_id")[FACTSHEET_COLUMNS]
+        for col in FACTSHEET_COLUMNS:
+            funds[col] = funds["product_id"].map(prev[col])
+    failed: list[str] = []
+    bonds = funds[funds["category"] == "pendapatan_tetap"]
+    for n, (idx, row) in enumerate(bonds.iterrows(), 1):
+        log(f"Fund fact sheet {n}/{len(bonds)}...")
+        try:
+            facts = factsheet.read_fund(row["product_id"])
+        except Exception as e:  # network, missing document, or a missing PDF library
+            failed.append(f"{row['name']} ({str(e)[:60]})")
+            continue
+        for col, value in facts.items():
+            funds.at[idx, col] = value
+    warnings = [f"Fund fact sheet {len(failed)} dana pendapatan tetap gagal dibaca, nilai lama dipertahankan: "
+                + ", ".join(failed[:3]) + (" ..." if len(failed) > 3 else "")] if failed else []
+    return funds, warnings
+
+
 def run(dry_run: bool = False, log=print) -> RefreshReport:
     as_of = datetime.now().date().isoformat()
     raw = fetch_raw(log)
-    return write(build(raw, as_of), as_of, dry_run=dry_run)
+    datasets = build(raw, as_of)
+    datasets["funds"], notes = add_factsheets(datasets["funds"], _read(FILES["funds"]), log)
+    report = write(datasets, as_of, dry_run=dry_run)
+    report.warnings += notes
+    return report
+
+
+def run_factsheets_only(log=print) -> RefreshReport:
+    """Re-read only the fund fact sheets into the current products.csv (no browser, prices untouched)."""
+    old = _read(FILES["funds"])
+    if old is None:
+        raise RuntimeError("data/products.csv belum ada; jalankan pembaruan data penuh dulu.")
+    funds, notes = add_factsheets(old.drop(columns=FACTSHEET_COLUMNS, errors="ignore"), old, log)
+    tmp = FILES["funds"].with_suffix(".tmp")
+    funds.to_csv(tmp, index=False, encoding="utf-8")
+    tmp.replace(FILES["funds"])
+    known = int(funds["gov_top10_pct"].notna().sum())
+    return RefreshReport(as_of=str(old["as_of"].iloc[0]), funds=len(funds), changed_datasets=[FILES["funds"].name],
+                         warnings=[f"Fact sheet terbaca untuk {known} dana pendapatan tetap."] + notes)
 
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Perbarui data produk Bibit di folder data/.")
     ap.add_argument("--dry-run", action="store_true", help="hanya tampilkan perubahan, jangan tulis file")
+    ap.add_argument("--factsheets-only", action="store_true", help="hanya baca ulang fund fact sheet, harga tidak disentuh")
     args = ap.parse_args(argv)
     try:
-        report = run(dry_run=args.dry_run, log=lambda msg: print(msg, file=sys.stderr))  # progress -> stderr
+        log = lambda msg: print(msg, file=sys.stderr)  # noqa: E731  progress -> stderr
+        report = run_factsheets_only(log) if args.factsheets_only else run(dry_run=args.dry_run, log=log)
     except Exception as e:  # network, browser, or page-layout problems
         print(f"GAGAL memperbarui data: {e}", file=sys.stderr)
         return 1

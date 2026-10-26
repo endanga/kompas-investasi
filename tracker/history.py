@@ -13,7 +13,7 @@ from . import storage
 
 HISTORY_DIR = Path(__file__).parent.parent / "data" / "recommendations"
 PICK_FIELDS = ["product_id", "name", "return_1y_pct", "return_3y_pct", "drawdown_1y_pct", "aum_idr", "score",
-               "alasan", "url", "held_idr"]
+               "alasan", "url", "held_idr", "gov_top10_pct"]
 
 
 def _clean(value):

@@ -248,6 +248,19 @@ def data_status(as_of: str, age_days: int) -> str:
             f'<span>Snapshot per {_e(as_of)} ({when})</span></div>')
 
 
+GOV_LOW_PCT = 30      # below this share of government bonds in the top holdings, the card warns about credit risk
+
+
+def _holdings_line(p: dict) -> str:
+    """'Isi 10 besar: X% obligasi negara' for bond funds whose fact sheet was read; a warning when mostly corporate."""
+    share = p.get("gov_top10_pct")
+    if share is None or pd.isna(share):
+        return ""
+    warn = (' · <b>mayoritas obligasi korporasi: risiko gagal bayar penerbit tidak terlihat di grafik harga</b>'
+            if share < GOV_LOW_PCT else "")
+    return f'<div style="font-size:.8rem;opacity:.85;margin-bottom:8px">Isi 10 besar: {share:.0f}% obligasi negara{warn}</div>'
+
+
 def product_card(category: str, share: float, monthly: float, picks: list[dict], mode: str) -> str:
     """Main pick of a category with key numbers; the other ranked funds sit in a <details> block."""
     top, rest = picks[0], picks[1:]
@@ -275,7 +288,7 @@ def product_card(category: str, share: float, monthly: float, picks: list[dict],
         f'<div class="it-stat"><b>{_delta(top.get("return_3y_pct"))}</b><span>return 3 th</span></div>'
         f'<div class="it-stat"><b>{fmt_pct(abs(dd) if pd.notna(dd) else None)}</b><span>turun terdalam</span></div>'
         f'</div><div style="font-size:.8rem;opacity:.7;margin-bottom:8px">Dana kelolaan {_e(fmt_idr_short(top["aum_idr"]))}</div>'
-        f'{link}{alts}</div>'
+        f'{_holdings_line(top)}{link}{alts}</div>'
     )
 
 

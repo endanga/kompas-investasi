@@ -366,8 +366,8 @@ with tab_rec:
                                        metrics.CRISIS_GRID_OBLIGASI, max_drop_pct / 100), unsafe_allow_html=True)
             st.caption("Angka-angka ini asumsi, bukan ramalan. Dipakai untuk melihat seberapa sensitif komposisi Anda terhadap "
                        "dua hal: turunnya saham dan turunnya obligasi.")
-        st.caption("Tahun buruk dihitung dari data 1 tahun terakhir; krisis berat adalah asumsi. Risiko obligasi yang sebenarnya "
-                   "(durasi, kualitas penerbit, konsentrasi) belum dibaca sistem karena prospektus tidak dimuat; cek fund fact sheet.")
+        st.caption("Tahun buruk dihitung dari data 1 tahun terakhir; krisis berat adalah asumsi. Dari fund fact sheet, sistem "
+                   "hanya membaca porsi obligasi negara di 10 besar isi dana pendapatan tetap; rating penerbit dan durasi belum terbaca, jadi cek fund fact sheet.")
         if plan.has_portfolio:
             st.caption(f"Dihitung untuk seluruh portofolio setelah setoran bulan ini (nilai sekarang {ui.fmt_idr_short(plan.total_now)}). "
                        f"Sebelum setoran: {ui.fmt_pct(plan.stress_now * 100)}.")

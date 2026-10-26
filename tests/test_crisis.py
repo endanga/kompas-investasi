@@ -73,3 +73,13 @@ def test_crisis_grid_marks_each_cell_with_icon_against_the_limit():
     out = ui.crisis_grid(metrics.crisis_grid(PROFILE_4_5), metrics.CRISIS_GRID_SAHAM, metrics.CRISIS_GRID_OBLIGASI, 0.10)
     assert "Saham -30%" in out and "Obligasi -12%" in out and "✓" in out and "✕" in out
     assert "dalam batas -10%" in out
+
+
+def test_bond_card_shows_government_share_and_warns_when_mostly_corporate():
+    base = {"name": "X", "url": "", "aum_idr": 2e11, "return_1y_pct": 4.0, "return_3y_pct": 18.0, "drawdown_1y_pct": 0.0}
+    corp = ui.product_card("pendapatan_tetap", 0.5, 1e6, [{**base, "gov_top10_pct": 0.0}], "light")
+    assert "0% obligasi negara" in corp and "risiko gagal bayar" in corp
+    gov = ui.product_card("pendapatan_tetap", 0.5, 1e6, [{**base, "gov_top10_pct": 100.0}], "light")
+    assert "100% obligasi negara" in gov and "risiko gagal bayar" not in gov
+    unknown = ui.product_card("pendapatan_tetap", 0.5, 1e6, [{**base, "gov_top10_pct": float("nan")}], "light")
+    assert "obligasi negara" not in unknown                                           # unknown is not shown as 0
