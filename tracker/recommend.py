@@ -221,11 +221,19 @@ def level_notes(level: float, allocation: dict[str, float]) -> list[str]:
     return notes
 
 
+CRITICAL_NOTE_STARTS = ("Tidak ada level", "Tidak ada produk", "Data produk berumur", "Dengan isi portofolio sekarang")
+
+
+def note_is_critical(note: str) -> bool:
+    """Urgent notes (nothing fits, no product, stale data, portfolio over the limit) stay as warnings; the rest are background."""
+    return note.startswith(CRITICAL_NOTE_STARTS)
+
+
 def _skipped_note(level: float, checks: list[dict]) -> str:
     bad = next(c for c in checks if not c["passed"])
     why = ("melewati batas" if bad["crossed"]
            else f"ruangnya hanya {bad['margin_points']:+.2f} poin (kurang dari {metrics.MARGIN_THIN * 100:g})")
-    return (f"Profil risiko {level:g} tidak dipilih otomatis: {bad['name'].lower()} {bad['loss'] * 100:.1f}%, {why} "
+    return (f"Profil risiko {level:g} tidak dipilih otomatis: {bad['name'][:1].lower() + bad['name'][1:]} {bad['loss'] * 100:.1f}%, {why} "
             "terhadap batas Anda. Ini simulasi, bukan batas kerugian aktual.")
 
 

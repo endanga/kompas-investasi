@@ -175,9 +175,10 @@ def test_level_comparison_table_marks_each_cell_with_icon_and_words():
 def test_app_defaults_to_the_conservative_level_and_explains_why():
     at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=120).run()
     assert not at.exception
-    assert any("tidak dipilih otomatis" in w.value for w in at.warning)
-    assert any("Empat angka yang sering tertukar" in e.label for e in at.expander)
-    assert any("Bandingkan level" in e.label for e in at.expander)
+    notes = next(e for e in at.expander if e.label.startswith("Catatan tentang data dan asumsi"))
+    assert any("tidak dipilih otomatis" in m.value for m in notes.markdown)           # the explanation sits in the notes expander
+    labels = [t.label for t in at.tabs]
+    assert "Arti angka" in labels and "Bandingkan level" in labels and "Pemeriksaan batas" in labels
 
 
 def test_turning_the_conservative_rule_off_restores_the_older_choice():

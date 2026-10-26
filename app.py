@@ -332,8 +332,14 @@ tab_rec, tab_port, tab_risk, tab_prod, tab_gov, tab_help = st.tabs([
 
 # ----------------------------------------------------------------------------- Rekomendasi
 with tab_rec:
-    for note in rec.notes:
+    urgent = [n for n in rec.notes if recommend.note_is_critical(n)]
+    background = [n for n in rec.notes if not recommend.note_is_critical(n)]
+    for note in urgent:
         st.warning(note)
+    if background:
+        with st.expander(f"Catatan tentang data dan asumsi ({len(background)})", icon=":material/info:"):
+            for note in background:
+                st.markdown(f"- {note}")
 
     # severe-crisis loss of what will actually be held: the whole portfolio after this month's deposit, else the recommended mix
     crisis_loss = portfolio_plan.stress(plan.after, crisis) if plan.has_portfolio else metrics.stress_loss(rec.allocation, crisis)
@@ -360,25 +366,76 @@ with tab_rec:
         st.plotly_chart(ui.donut(rec.allocation, ui.fmt_idr_short(budget), "per bulan", mode), width="stretch",
                         config={"displayModeBar": False})
         st.markdown(ui.legend_rows(rec.allocation, rec.monthly_amounts, mode), unsafe_allow_html=True)
+    margin_base, margin_label = ((plan.total_now + budget, "nilai portofolio") if plan.has_portfolio
+                                 else (budget * 12, "setoran 12 bulan"))
+    lower_levels = [(lv, ls) for lv, ls in zip(level_values, level_losses) if lv < rec.level]
+    margin_text, margin_warn = ui.margin_note(rec.stress_loss, max_drop_pct / 100, margin_base, margin_label, rec.level,
+                                              max(lower_levels) if lower_levels else None)
+    room = metrics.margin_to_limit(rec.stress_loss, max_drop_pct / 100, margin_base)
+    room_line = (f"Ruang terhadap batas {max_drop_pct}%: {room['points']:+.2f} poin "
+                 f"({ui.fmt_idr_short(abs(room['rupiah']))} dari {margin_label}).")
+    held = plan.after if plan.has_portfolio else rec.allocation
     with right, st.container(border=True):
         st.markdown(f"**Posisi di skala {RISK_TITLE.lower()} Bibit**")
         st.markdown(ui.profile_scale(level_values, level_losses, max_drop_pct / 100, rec.level), unsafe_allow_html=True)
         st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
         st.markdown(ui.risk_meter(rec.stress_loss, max_drop_pct / 100, mode, crisis_loss), unsafe_allow_html=True)
-        margin_base, margin_label = (plan.total_now + budget, "nilai portofolio") if plan.has_portfolio else (budget * 12, "setoran 12 bulan")
-        lower_levels = [(lv, ls) for lv, ls in zip(level_values, level_losses) if lv < rec.level]
-        margin_text, margin_warn = ui.margin_note(rec.stress_loss, max_drop_pct / 100, margin_base, margin_label, rec.level,
-                                                  max(lower_levels) if lower_levels else None)
-        (st.warning if margin_warn else st.caption)(margin_text, **({"icon": ":material/warning:"} if margin_warn else {}))
-        if rec.checks:
-            with st.expander("Apakah level ini benar-benar memenuhi batas Anda? Pemeriksaan satu per satu"):
-                for c in rec.checks:
-                    tag = "melewati batas" if c["crossed"] else "ruang tipis (dianggap belum memenuhi)" if c["thin"] else "ada ruang"
-                    st.markdown(f"- **{c['name']}** ({c['kind']}): {ui.fmt_pct(c['loss'] * 100)}, ruang {c['margin_points']:+.2f} poin, {tag}")
+        st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+        if room["crossed"] or room["thin"]:
+            st.warning(room_line + (" Sudah melewati batas." if room["crossed"] else " Sangat tipis."), icon=":material/warning:")
+        else:
+            st.caption(room_line)
+        if -crisis_loss > max_drop_pct / 100:
+            st.warning(f"Bila krisis berat terjadi, perkiraan turun bisa mencapai {ui.fmt_pct(-crisis_loss * 100)} "
+                       f"dan melewati batas {max_drop_pct}% Anda.", icon=":material/warning:")
+        if rec.level not in recommend.VERIFIED_LEVELS:
+            st.caption("Komposisi level ini belum dicocokkan dengan aplikasi Bibit.")
+
+    bond_pick = rec.picks.get("pendapatan_tetap")
+    gov = bond_pick.iloc[0].get("gov_top10_pct") if bond_pick is not None and len(bond_pick) else None
+    gov = None if gov is None or pd.isna(gov) else gov / 100
+    with st.expander("Periksa lebih dalam: pemeriksaan batas, skenario, perbandingan level, arti angka",
+                     icon=":material/fact_check:"):
+        t_check, t_scen, t_levels, t_mean = st.tabs(["Pemeriksaan batas", "Krisis dan skenario", "Bandingkan level", "Arti angka"])
+        with t_check:
+            for c in rec.checks:
+                tag = "melewati batas" if c["crossed"] else "ruang tipis (dianggap belum memenuhi)" if c["thin"] else "ada ruang"
+                st.markdown(f"- **{c['name']}** ({c['kind']}): {ui.fmt_pct(c['loss'] * 100)}, ruang {c['margin_points']:+.2f} poin, {tag}")
+            if rec.checks:
                 st.caption("Level dianggap memenuhi batas hanya bila semua pemeriksaan lolos dengan ruang minimal "
                            f"{metrics.MARGIN_THIN * 100:g} poin. Ketiganya adalah sudut pandang berbeda pada risiko yang sama dan "
                            "tidak dijumlahkan. Semuanya simulasi, bukan batas kerugian aktual.")
-        with st.expander("Empat angka yang sering tertukar"):
+            st.markdown(margin_text)
+            if plan.has_portfolio:
+                st.caption(f"Dihitung untuk seluruh portofolio setelah setoran bulan ini (nilai sekarang {ui.fmt_idr_short(plan.total_now)}). "
+                           f"Sebelum setoran: {ui.fmt_pct(plan.stress_now * 100)}.")
+            if is_auto and rec.within_limit:
+                st.caption(f"Ini {RISK_TITLE.lower()} tertinggi yang lolos semua pemeriksaan simulasi terhadap batas {max_drop_pct}% dan "
+                           f"tujuan {horizon:g} tahun. Lolos simulasi bukan jaminan kerugian tidak akan melewati {max_drop_pct}%.")
+            st.caption("Komposisi sudah dicocokkan dengan screenshot robo Bibit." if rec.level in recommend.VERIFIED_LEVELS else
+                       "Komposisi dari catatan Anda, belum dicocokkan dengan aplikasi Bibit. Cek di aplikasi sebelum membeli.")
+        with t_scen:
+            st.markdown("**Bagaimana kalau krisisnya lebih ringan atau lebih berat?**")
+            st.markdown(ui.crisis_grid(metrics.crisis_grid(held, pasar_uang_pct=crisis_pu), metrics.CRISIS_GRID_SAHAM,
+                                       metrics.CRISIS_GRID_OBLIGASI, max_drop_pct / 100), unsafe_allow_html=True)
+            st.caption("Angka-angka ini asumsi, bukan ramalan. Dipakai untuk melihat seberapa sensitif komposisi Anda terhadap "
+                       "dua hal: turunnya saham dan turunnya obligasi.")
+            st.markdown("**Skenario terpisah: apa yang bisa salah, satu per satu**")
+            if gov is not None:
+                st.markdown(ui.scenario_table(metrics.scenario_losses(held, gov), margin_base, margin_label, max_drop_pct / 100),
+                            unsafe_allow_html=True)
+                st.caption(f"Porsi obligasi negara {gov:.0%} dihitung dari 10 besar isi dana pendapatan tetap pilihan utama, bukan "
+                           "seluruh dana. Ini simulasi dengan asumsi, bukan batas kerugian maksimum dan bukan jaminan aman.")
+            else:
+                st.markdown(ui.scenario_table(metrics.scenario_range(held), margin_base, margin_label, max_drop_pct / 100,
+                                              verified=False, exposures=metrics.CORPORATE_EXPOSURES), unsafe_allow_html=True)
+                st.caption("Ini simulasi dengan asumsi, bukan batas kerugian maksimum dan bukan jaminan aman. "
+                           "Cek fund fact sheet dana pendapatan tetap sebelum membeli.")
+        with t_levels:
+            cmp_rows = recommend.compare_levels(catalog, all_profiles, sorted({3.5, 4.0, 4.5, rec.level}), max_drop_pct / 100, crisis,
+                                                rates, float(budget), horizon, syariah_only)
+            st.markdown(ui.level_compare(cmp_rows, margin_base, margin_label, max_drop_pct / 100, rec.level), unsafe_allow_html=True)
+        with t_mean:
             st.markdown(
                 "1. **Penurunan historis terdalam**: seberapa dalam harga satu dana pernah turun dalam 1 tahun terakhir. Fakta masa lalu, "
                 "hanya 1 tahun.\n"
@@ -388,48 +445,9 @@ with tab_rec:
                 "skenario terpisah). Angkanya asumsi, bukan data.\n"
                 "4. **Toleransi kerugian Anda**: batas yang Anda pilih di sidebar. Itu preferensi Anda, **bukan jaminan** kerugian tidak "
                 "akan lebih besar. Kerugian nyata bisa melewati semua angka di atas.")
-        with st.expander("Bandingkan level di sekitarnya (asumsi sama)"):
-            cmp_levels = sorted({3.5, 4.0, 4.5, rec.level})
-            cmp_rows = recommend.compare_levels(catalog, all_profiles, cmp_levels, max_drop_pct / 100, crisis, rates, float(budget),
-                                                horizon, syariah_only)
-            st.markdown(ui.level_compare(cmp_rows, margin_base, margin_label, max_drop_pct / 100, rec.level), unsafe_allow_html=True)
-        if -crisis_loss > max_drop_pct / 100:
-            st.warning(f"Bila krisis berat terjadi, perkiraan turun bisa mencapai {ui.fmt_pct(-crisis_loss * 100)} "
-                       f"dan melewati batas {max_drop_pct}% Anda. Pertimbangkan profil yang lebih konservatif, atau pastikan Anda "
-                       "tidak menjual saat turun. Asumsi krisis bisa diubah di sidebar.", icon=":material/warning:")
-        held = plan.after if plan.has_portfolio else rec.allocation
-        with st.expander("Bagaimana kalau krisisnya lebih ringan atau lebih berat?"):
-            st.markdown(ui.crisis_grid(metrics.crisis_grid(held, pasar_uang_pct=crisis_pu), metrics.CRISIS_GRID_SAHAM,
-                                       metrics.CRISIS_GRID_OBLIGASI, max_drop_pct / 100), unsafe_allow_html=True)
-            st.caption("Angka-angka ini asumsi, bukan ramalan. Dipakai untuk melihat seberapa sensitif komposisi Anda terhadap "
-                       "dua hal: turunnya saham dan turunnya obligasi.")
-        with st.expander("Skenario terpisah: apa yang bisa salah, satu per satu"):
-            bond_pick = rec.picks.get("pendapatan_tetap")
-            gov = bond_pick.iloc[0].get("gov_top10_pct") if bond_pick is not None and len(bond_pick) else None
-            gov = None if gov is None or pd.isna(gov) else gov / 100
-            base, base_label = (plan.total_now + budget, "nilai portofolio setelah setoran bulan ini") if plan.has_portfolio                 else (budget * 12, "setoran 12 bulan")
-            if gov is not None:
-                st.markdown(ui.scenario_table(metrics.scenario_losses(held, gov), base, base_label, max_drop_pct / 100),
-                            unsafe_allow_html=True)
-                st.caption(f"Porsi obligasi negara {gov:.0%} dihitung dari 10 besar isi dana pendapatan tetap pilihan utama, bukan "
-                           "seluruh dana. Ini simulasi dengan asumsi, bukan batas kerugian maksimum dan bukan jaminan aman.")
-            else:
-                st.markdown(ui.scenario_table(metrics.scenario_range(held), base, base_label, max_drop_pct / 100,
-                                              verified=False, exposures=metrics.CORPORATE_EXPOSURES), unsafe_allow_html=True)
-                st.caption("Ini simulasi dengan asumsi, bukan batas kerugian maksimum dan bukan jaminan aman. "
-                           "Cek fund fact sheet dana pendapatan tetap sebelum membeli.")
-        st.caption("Tahun buruk dihitung dari data 1 tahun terakhir; krisis berat adalah asumsi. Dari fund fact sheet, sistem "
-                   "hanya membaca porsi obligasi negara di 10 besar isi dana pendapatan tetap; rating penerbit dan durasi belum terbaca, jadi cek fund fact sheet.")
-        if plan.has_portfolio:
-            st.caption(f"Dihitung untuk seluruh portofolio setelah setoran bulan ini (nilai sekarang {ui.fmt_idr_short(plan.total_now)}). "
-                       f"Sebelum setoran: {ui.fmt_pct(plan.stress_now * 100)}.")
-        if is_auto and rec.within_limit:
-            st.caption(f"Ini {RISK_TITLE.lower()} tertinggi yang lolos semua pemeriksaan simulasi terhadap batas {max_drop_pct}% dan tujuan "
-                       f"{horizon:g} tahun. Lolos simulasi bukan jaminan kerugian tidak akan melewati {max_drop_pct}%.")
-        if rec.level in (4.5, 5.0):
-            st.caption("Komposisi sudah dicocokkan dengan screenshot robo Bibit.")
-        else:
-            st.caption("Komposisi dari catatan Anda, belum dicocokkan dengan aplikasi Bibit. Cek di aplikasi sebelum membeli.")
+            st.caption("Tahun buruk dihitung dari data 1 tahun terakhir; krisis berat adalah asumsi. Dari fund fact sheet, sistem "
+                       "hanya membaca porsi obligasi negara di 10 besar isi dana pendapatan tetap; rating penerbit dan durasi belum "
+                       "terbaca, jadi cek fund fact sheet.")
 
     if plan.has_portfolio:
         st.markdown(ui.section("Dari portofolio Anda menuju target",

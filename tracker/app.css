@@ -158,3 +158,9 @@
 @media (max-width: 640px) { .it-grid { font-size: .78rem; } .it-grid th, .it-grid td { padding: .35rem .25rem; } }
 .it-scen tbody th small { display: block; font-weight: 400; opacity: .7; font-size: .76rem; margin-top: 2px; white-space: normal; }
 .it-scen td { white-space: nowrap; }
+
+/* wide comparison tables scroll sideways inside their own box instead of running past the page */
+.it-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.it-levels td { white-space: normal; min-width: 150px; vertical-align: top; }
+.it-levels tbody th { min-width: 150px; white-space: normal; }
+@media (max-width: 640px) { .it-levels td, .it-levels tbody th { min-width: 130px; } }

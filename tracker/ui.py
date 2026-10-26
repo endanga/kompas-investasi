@@ -425,7 +425,7 @@ def scenario_table(rows: list[dict], base: float, base_label: str, limit: float,
                  "Kolom di bawah adalah <b>simulasi dengan asumsi</b>, bukan data.")
     body = "".join(f'<tr><th>{_e(r["name"])}<small>{_e(r["note"])}</small></th>{cells(r)}</tr>' for r in rows)
     return (f'<div class="it-grid-key" style="margin:0 0 .5rem">{badge}</div>'
-            f'<table class="it-grid it-scen"><thead><tr><th>Skenario</th>{head}</tr></thead><tbody>{body}</tbody></table>'
+            f'<div class="it-scroll"><table class="it-grid it-scen"><thead><tr><th>Skenario</th>{head}</tr></thead><tbody>{body}</tbody></table></div>'
             f'<div class="it-grid-key">Rupiah dihitung dari {_e(base_label)} ({_e(fmt_idr_short(base))}). '
             f'✓ dalam batas -{limit:.0%} Anda · ✕ melewati batas</div>')
 
@@ -459,7 +459,7 @@ def level_compare(rows: list[dict], base: float, base_label: str, limit: float, 
         body += line(f"Proyeksi skenario {name} (asumsi)", "".join(f"<td>{_e(fmt_idr_short(r['projection'][name]))}</td>" for r in rows))
     body += line("Kelemahan data", "".join(
         f"<td>{_e('; '.join(r['weaknesses']) or 'tidak ada yang tercatat')}</td>" for r in rows))
-    return (f'<table class="it-grid it-scen"><thead><tr><th></th>{head}</tr></thead><tbody>{body}</tbody></table>'
+    return (f'<div class="it-scroll"><table class="it-grid it-levels"><thead><tr><th></th>{head}</tr></thead><tbody>{body}</tbody></table></div>'
             f'<div class="it-grid-key">Rupiah dihitung dari {_e(base_label)} ({_e(fmt_idr_short(base))}). Semua level memakai guncangan, '
             "krisis, skenario, dan asumsi return yang sama. Proyeksi bukan prediksi.</div>")
 

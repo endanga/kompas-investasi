@@ -189,7 +189,25 @@ def test_no_text_in_the_app_promises_safety_or_a_loss_cap():
     assert any("bukan jaminan" in t or "bukan batas kerugian yang dijamin" in t for t in texts)
 
 
-def test_the_default_view_shows_the_conservative_explanation():
+def test_the_default_view_keeps_the_explanations_reachable_without_stacking_warnings():
     at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=120).run()
-    warnings = " ".join(w.value for w in at.warning)
-    assert "tidak dipilih otomatis" in warnings and "belum dicocokkan dengan aplikasi Bibit" in warnings
+    notes = next(e for e in at.expander if e.label.startswith("Catatan tentang data dan asumsi"))
+    text = " ".join(m.value for m in notes.markdown)
+    assert "tidak dipilih otomatis" in text and "belum dicocokkan dengan aplikasi Bibit" in text and "Rating kredit dan durasi" in text
+    assert len(at.warning) <= 2                                       # background notes no longer pile up as yellow boxes
+
+
+def test_only_urgent_notes_stay_as_warnings():
+    assert recommend.note_is_critical("Tidak ada level yang memenuhi semua pemeriksaan risiko Anda; ...")
+    assert recommend.note_is_critical("Data produk berumur 40 hari (lebih dari 30).")
+    assert recommend.note_is_critical("Dengan isi portofolio sekarang, perkiraan turun total 12% masih di atas batas")
+    assert not recommend.note_is_critical("Rating kredit dan durasi dana obligasi tidak tersedia di data ini")
+    assert not recommend.note_is_critical("Komposisi profil risiko 3 berasal dari catatan Anda")
+    assert not recommend.note_is_critical("Profil risiko 3.5 tidak dipilih otomatis: ...")
+
+
+def test_a_heavy_failure_is_still_a_visible_warning_in_the_app():
+    at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=120).run()
+    at.slider(key="rec_drop").set_value(3)                            # a 3% limit: no profile fits
+    at = at.run()
+    assert not at.exception and any("Tidak ada level" in w.value for w in at.warning)
