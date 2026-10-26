@@ -1,0 +1,6 @@
+kode,nama,jenis,imbal_hasil,pencairan,jangka_waktu,minimal_beli_idr,as_of
+SBR,Savings Bond Ritel,Surat Utang Negara,Mengambang dengan batas minimum,Dapat dicairkan lebih awal,2 dan 4 tahun,1000000,2026-10-26
+ST,Sukuk Tabungan,Surat Berharga Syariah Negara,Mengambang dengan batas minimum,Dapat dicairkan lebih awal,2 dan 4 tahun,1000000,2026-10-26
+ORI,Obligasi Negara Ritel,Surat Utang Negara,Tetap,Sesuai jatuh tempo,3 dan 6 tahun,1000000,2026-10-26
+SR,Sukuk Ritel,Surat Berharga Syariah Negara,Tetap,Sesuai jatuh tempo,3 dan 5 tahun,1000000,2026-10-26
+FR,Obligasi FR (pasar sekunder),Surat Utang Negara,"Kupon tetap, dibayar tiap 6 bulan","Bisa dijual kapan saja, harga bisa naik/turun",bervariasi per seri,1000000,2026-10-26

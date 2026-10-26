@@ -1,0 +1,26 @@
+# Python / tooling
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+.playwright-mcp/
+.claude/settings.local.json
+
+# Secrets: never commit these
+.streamlit/secrets.toml
+.env
+
+# Personal data. In a deployment it lives in the database; locally it stays on this computer.
+data/holdings.csv
+data/transactions.csv
+data/recommendations/
+data/robo_picks.json
+data/*.db
+
+# Local snapshots made by the product refresh and by CSV edits (public data, but large and noisy)
+data/archive/
+*.tmp
+
+# Local secrets folder
+config/

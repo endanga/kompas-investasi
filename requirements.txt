@@ -1,0 +1,7 @@
+pandas>=2.2
+numpy>=2.0
+streamlit>=1.66
+plotly>=6.0
+reportlab>=4.0
+sqlalchemy>=2.0
+psycopg[binary]>=3.2

@@ -1,0 +1,25 @@
+{
+  "_catatan": "Level robo Bibit 1-10 (pasar uang / obligasi / saham), dicatat pengguna dari aplikasi Bibit. Hanya level 4.5 dan 5 yang sudah dicocokkan dengan screenshot aplikasi; sisanya perkiraan, cocokkan lagi di aplikasi sebelum bergantung pada angkanya. Total tiap level harus 1.0. Kategori yang dikenal: pasar_uang, pendapatan_tetap, campuran, saham, sbn.",
+
+  "bibit_1_konservatif":    {"pasar_uang": 0.70, "pendapatan_tetap": 0.20, "saham": 0.10},
+  "bibit_1.5_konservatif":  {"pasar_uang": 0.70, "pendapatan_tetap": 0.20, "saham": 0.10},
+  "bibit_2_konservatif":    {"pasar_uang": 0.58, "pendapatan_tetap": 0.32, "saham": 0.10},
+  "bibit_2.5_konservatif":  {"pasar_uang": 0.47, "pendapatan_tetap": 0.43, "saham": 0.10},
+  "bibit_3_konservatif":    {"pasar_uang": 0.36, "pendapatan_tetap": 0.54, "saham": 0.10},
+  "bibit_3.5_konservatif":  {"pasar_uang": 0.27, "pendapatan_tetap": 0.62, "saham": 0.11},
+  "bibit_4_konservatif":    {"pasar_uang": 0.18, "pendapatan_tetap": 0.69, "saham": 0.13},
+
+  "bibit_4.5_moderat":      {"pasar_uang": 0.12, "pendapatan_tetap": 0.70, "saham": 0.18},
+  "bibit_5_moderat":        {"pasar_uang": 0.10, "pendapatan_tetap": 0.65, "saham": 0.25},
+  "bibit_5.5_moderat":      {"pasar_uang": 0.10, "pendapatan_tetap": 0.59, "saham": 0.31},
+  "bibit_6_moderat":        {"pasar_uang": 0.10, "pendapatan_tetap": 0.53, "saham": 0.37},
+  "bibit_6.5_moderat":      {"pasar_uang": 0.10, "pendapatan_tetap": 0.48, "saham": 0.42},
+  "bibit_7_moderat":        {"pasar_uang": 0.10, "pendapatan_tetap": 0.43, "saham": 0.47},
+
+  "bibit_7.5_agresif":      {"pasar_uang": 0.10, "pendapatan_tetap": 0.38, "saham": 0.52},
+  "bibit_8_agresif":        {"pasar_uang": 0.10, "pendapatan_tetap": 0.34, "saham": 0.56},
+  "bibit_8.5_agresif":      {"pasar_uang": 0.10, "pendapatan_tetap": 0.29, "saham": 0.61},
+  "bibit_9_agresif":        {"pasar_uang": 0.10, "pendapatan_tetap": 0.24, "saham": 0.66},
+  "bibit_9.5_agresif":      {"pasar_uang": 0.10, "pendapatan_tetap": 0.20, "saham": 0.70},
+  "bibit_10_agresif":       {"pasar_uang": 0.10, "pendapatan_tetap": 0.20, "saham": 0.70}
+}

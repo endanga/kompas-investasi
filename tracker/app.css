@@ -1,0 +1,105 @@
+/* Loaded on every page render (see ui.inject_css), so edits show up after a browser refresh.
+   Rules here override the base styles embedded in ui.py. */
+
+/* ---- cards in one row share the height of the tallest card ---- */
+[data-testid="stColumn"]:has(.it-card, .it-prod) > [data-testid="stVerticalBlock"],
+[data-testid="stColumn"]:has(.it-card, .it-prod) [data-testid="stElementContainer"],
+[data-testid="stColumn"]:has(.it-card, .it-prod) [data-testid="stMarkdown"],
+[data-testid="stColumn"]:has(.it-card, .it-prod) [data-testid="stMarkdownContainer"],
+[data-testid="stColumn"]:has(.it-card, .it-prod) [data-testid="stMarkdown"] > div,
+[data-testid="stColumn"]:has(.it-card, .it-prod) [data-testid="stMarkdownContainer"] > div {
+  height: 100%;
+}
+.it-kpi { min-height: 0; }
+
+/* ---- tabs: pill buttons with clear spacing from the content below ---- */
+[data-testid="stTabs"] [role="tablist"] {
+  gap: .4rem;
+  padding: 0 0 .9rem;
+  margin-bottom: .6rem;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 16%, transparent);
+  flex-wrap: wrap;
+  overflow: visible;
+}
+[data-testid="stTabs"] [role="tab"] {
+  height: auto;
+  padding: .4rem .7rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, currentColor 14%, transparent);
+  background: color-mix(in srgb, currentColor 4%, transparent);
+  font-size: .88rem;
+  transition: background .15s, border-color .15s;
+}
+[data-testid="stTabs"] [role="tab"]:hover {
+  background: color-mix(in srgb, currentColor 9%, transparent);
+}
+[data-testid="stTabs"] [role="tab"][aria-selected="true"] {
+  background: var(--primary-color, #1baf7a);
+  border-color: var(--primary-color, #1baf7a);
+  color: #fff;
+}
+[data-testid="stTabs"] [role="tab"][aria-selected="true"] * { color: #fff; }
+/* Streamlit's own underline/highlight is replaced by the filled pill */
+[data-testid="stTabs"] [data-baseweb="tab-highlight"],
+[data-testid="stTabs"] [data-baseweb="tab-border"],
+[data-testid="stTabs"] [class*="SelectionIndicator"] { display: none; }
+[data-testid="stTabs"] [role="tabpanel"] { padding-top: .6rem; }
+
+/* ---- product cards: keep the rows of numbers aligned across cards ---- */
+.it-prod .name { min-height: 2.6em; }
+.it-prod .why { min-height: 4.4em; }
+.it-prod .top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.it-prod .tag { font-size: .8rem; }
+.it-prod .pct { background: color-mix(in srgb, var(--accent) 16%, transparent); border: 2px solid var(--accent);
+  border-radius: 999px; padding: 1px 14px; font-weight: 800; font-size: 1.05rem; }
+.it-prod .amt { font-size: 1.85rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; margin: 10px 0 4px; }
+.it-prod .amt small { font-size: .85rem; font-weight: 600; opacity: .65; margin-left: 8px; letter-spacing: 0; }
+.it-prod .name { font-size: 1.05rem; }
+/* breakdown under the donut: larger amounts */
+.it-legendrow { font-size: 1.02rem; padding: 12px 0; }
+.it-legendrow b { font-size: 1.2rem; }
+.it-legendrow small { font-size: .85rem; }
+.it-dot { width: 13px; height: 13px; }
+
+/* ---- section rhythm: more air above each heading ---- */
+.it-h { margin-top: 34px; }
+.it-h:first-child { margin-top: 10px; }
+
+/* product the user already holds */
+.it-held { display: inline-block; vertical-align: middle; margin-left: 6px; padding: 1px 9px; border-radius: 999px;
+  font-size: .72rem; font-weight: 700; border: 1px solid var(--accent); color: var(--accent); white-space: nowrap; }
+
+/* ---- sidebar: numbered sections, recap card, composition bar ---- */
+.it-sidesum { border: 1px solid color-mix(in srgb, var(--primary-color, #1baf7a) 55%, transparent);
+  background: color-mix(in srgb, var(--primary-color, #1baf7a) 10%, transparent); border-radius: 12px; padding: 10px 12px; margin: 2px 0 6px; }
+.it-sidesum .l { font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; opacity: .75; margin-bottom: 6px; }
+.it-sidesum .c { display: flex; flex-wrap: wrap; gap: 5px; }
+.it-sidesum .c span { font-size: .78rem; font-weight: 700; padding: 2px 9px; border-radius: 999px;
+  background: color-mix(in srgb, currentColor 10%, transparent); }
+.it-side { display: flex; gap: 10px; align-items: flex-start; margin: 22px 0 8px; padding-top: 14px;
+  border-top: 1px solid color-mix(in srgb, currentColor 14%, transparent); }
+.it-side .n { flex: none; width: 24px; height: 24px; line-height: 24px; text-align: center; border-radius: 50%; font-size: .78rem;
+  font-weight: 800; background: var(--primary-color, #1baf7a); color: #fff; }
+.it-side .t { font-weight: 800; font-size: 1.02rem; line-height: 1.25; }
+.it-side .s { font-size: .78rem; opacity: .7; line-height: 1.35; margin-top: 2px; }
+.it-allocbar { display: flex; height: 12px; border-radius: 999px; overflow: hidden; gap: 2px; margin: 4px 0 8px; }
+.it-datastat { display: flex; flex-direction: column; gap: 2px; padding: 8px 12px; border-radius: 10px; margin-bottom: 8px;
+  border: 1px solid color-mix(in srgb, currentColor 18%, transparent); font-size: .8rem; }
+.it-datastat.ok b { color: var(--pos, #0ca30c); }
+.it-datastat.old { border-color: #d03b3b; }
+.it-datastat.old b { color: #d03b3b; }
+
+/* ---- PDF report buttons: blue, distinct from the green/red action buttons ---- */
+.st-key-pdf_current button, .st-key-pdf_saved button {
+  background: #2a78d6; border: 1px solid #2a78d6; color: #fff; font-weight: 700; }
+.st-key-pdf_current button *, .st-key-pdf_saved button * { color: #fff; }
+.st-key-pdf_current button:hover, .st-key-pdf_saved button:hover { background: #1f62b3; border-color: #1f62b3; }
+.st-key-pdf_current button:focus-visible, .st-key-pdf_saved button:focus-visible { outline: 3px solid #86b6ef; outline-offset: 2px; }
+
+/* ---- glossary cards ---- */
+.it-term .grp { display: inline-block; font-size: .66rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+  opacity: .65; margin-bottom: 4px; }
+.it-term > b { font-size: 1.05rem; }
+.it-term .ex { margin-top: 8px; padding: 6px 10px; border-left: 3px solid var(--primary-color, #1baf7a); font-size: .84rem;
+  background: color-mix(in srgb, currentColor 6%, transparent); border-radius: 0 8px 8px 0; opacity: 1; }
+.it-term .ex b { display: inline; margin: 0; }
