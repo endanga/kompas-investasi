@@ -50,15 +50,21 @@ def load_prospectus() -> pd.DataFrame | None:
     return df if "product_id" in df.columns and not df.empty else None
 
 
-def load_products() -> pd.DataFrame:
-    df = pd.read_csv(PRODUCTS_FILE)
-    if "name" in df.columns:  # recomputed on every load, so an older snapshot gets the corrected rule without a new refresh
+def _enrich(df: pd.DataFrame) -> pd.DataFrame:
+    """Derived columns every caller must see: the syariah flag recomputed from the name with the current rule (so an older
+    snapshot is corrected without a new refresh), and prospectus facts joined on product_id (columns prefixed pros_)."""
+    df = df.copy()
+    if "name" in df.columns:
         df["syariah_dari_nama"] = ["ya" if is_syariah(n) else "tidak" for n in df["name"]]
     pros = load_prospectus()
     if pros is not None and "product_id" in df.columns:
         keep = pros[["product_id"] + [c for c in PROSPECTUS_SHOWN if c in pros.columns]].drop_duplicates("product_id")
         df = df.merge(keep.rename(columns={c: f"pros_{c}" for c in PROSPECTUS_SHOWN}), on="product_id", how="left")
     return df
+
+
+def load_products() -> pd.DataFrame:
+    return _enrich(pd.read_csv(PRODUCTS_FILE))
 
 
 def check_catalog(df: pd.DataFrame) -> str | None:
@@ -86,7 +92,7 @@ def try_load_products() -> tuple[pd.DataFrame | None, str | None]:
     except (pd.errors.EmptyDataError, pd.errors.ParserError, OSError, UnicodeDecodeError) as e:
         return None, f"products.csv tidak bisa dibaca ({type(e).__name__})."
     reason = check_catalog(df)
-    return (None, reason) if reason else (df, None)
+    return (None, reason) if reason else (_enrich(df), None)
 
 
 def _read_optional(name: str) -> pd.DataFrame:

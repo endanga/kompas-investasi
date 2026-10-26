@@ -287,3 +287,22 @@ def test_card_stays_silent_about_a_prospectus_that_did_not_reconcile():
     for extra in ({}, {"pros_reconciled": False, "pros_gov_pct": 10.0, "pros_corp_pct": 80.0, "pros_investment_grade_pct": 80.0},
                   {"pros_reconciled": float("nan")}):
         assert "Menurut prospektus" not in ui.product_card("pendapatan_tetap", 0.5, 1e6, [{**CARD, **extra}], "light")
+
+
+def test_the_app_and_the_analysis_scripts_read_the_catalog_the_same_way():
+    """The app loads through try_load_products: it must get the corrected syariah flag and the prospectus columns too."""
+    app_df, problem = products.try_load_products()
+    assert problem is None
+    full = products.load_products()
+    assert (app_df["syariah_dari_nama"] == "ya").sum() == (full["syariah_dari_nama"] == "ya").sum()
+    assert app_df.loc[app_df["name"].str.contains("Sharia", case=False), "syariah_dari_nama"].eq("ya").all()
+    assert [c for c in app_df.columns if c.startswith("pros_")] == [c for c in full.columns if c.startswith("pros_")]
+    assert len(app_df) == len(full)
+
+
+def test_the_bond_card_in_the_running_app_shows_the_prospectus_mix():
+    from streamlit.testing.v1 import AppTest
+    at = AppTest.from_file(str(Path(__file__).parent.parent / "app.py"), default_timeout=120).run()
+    assert not at.exception
+    cards = " ".join(m.value for m in at.markdown if "it-prod" in m.value)
+    assert "Menurut prospektus" in cards and "posisi 2025-12-31" in cards and "bukan durasi" in cards
