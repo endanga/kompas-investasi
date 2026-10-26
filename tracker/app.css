@@ -141,3 +141,7 @@
   [data-testid="stTabs"] [role="tab"] { padding: .35rem .6rem; font-size: .84rem; }
   [data-testid="stMainBlockContainer"] { padding-left: 1rem; padding-right: 1rem; }
 }
+
+/* two-row risk meter: the first bar needs less room because only the last one carries the "batas" label */
+.it-meter .track.nolabel { margin-bottom: 10px; }
+.it-meter-gap { height: 10px; }

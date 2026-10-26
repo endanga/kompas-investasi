@@ -28,7 +28,8 @@ def _clean(value):
 
 
 def snapshot(rec, inputs: dict, data_as_of: str, note: str = "", now: datetime | None = None,
-             projection: dict | None = None, portfolio: dict | None = None) -> dict:
+             projection: dict | None = None, portfolio: dict | None = None,
+             crisis: dict | None = None) -> dict:
     """Plain-dict record of a Recommendation plus the inputs and data date that produced it.
 
     `projection` ({"inflation": float, "rates": {scenario: annual blended rate}}) is kept so a saved record can be
@@ -53,6 +54,8 @@ def snapshot(rec, inputs: dict, data_as_of: str, note: str = "", now: datetime |
         snap["notes"] = list(rec.notes)
     if portfolio:
         snap["portfolio"] = portfolio
+    if crisis:
+        snap["crisis"] = {"loss": float(crisis["loss"]), "shocks": {k: float(v) for k, v in crisis["shocks"].items()}}
     if projection:
         snap["projection"] = {"inflation": float(projection["inflation"]),
                               "rates": {k: float(v) for k, v in projection["rates"].items()}}

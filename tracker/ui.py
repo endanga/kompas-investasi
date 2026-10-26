@@ -300,18 +300,34 @@ def profile_scale(levels: list[float], losses: list[float], limit: float, select
     return (f'<div class="it-scale" style="--n:{n}">{pointer}{"".join(segs)}</div>{zones}{legend}')
 
 
-def risk_meter(loss: float, limit: float, mode: str) -> str:
+def _meter_row(label: str, loss: float, limit: float, scale: float, mode: str, show_limit_label: bool) -> str:
     fall, ok = -loss, -loss <= limit
-    scale = max(limit, fall) * 1.35 or 1
     color = GOOD if ok else CRITICAL
     status = "✓ Dalam batas Anda" if ok else "✕ Melewati batas Anda"
+    limit_label = f"<span>batas -{limit:.0%}</span>" if show_limit_label else ""
+    track_cls = "track" if show_limit_label else "track nolabel"
     return (
-        '<div class="it-meter"><div class="top"><span>Perkiraan turun di tahun buruk</span>'
-        f'<b>{_e(fmt_pct(-fall * 100))}</b></div>'
-        f'<div class="track"><div class="fill" style="width:{fall / scale * 100:.1f}%;background:{color}"></div>'
-        f'<div class="lim" style="left:{limit / scale * 100:.1f}%"><span>batas -{limit:.0%}</span></div></div>'
-        f'<span class="it-status" style="color:{GOOD_TEXT[mode] if ok else CRITICAL}">{status}</span></div>'
+        f'<div class="top"><span>{_e(label)}</span><b>{_e(fmt_pct(-fall * 100))}</b></div>'
+        f'<div class="{track_cls}"><div class="fill" style="width:{fall / scale * 100:.1f}%;background:{color}"></div>'
+        f'<div class="lim" style="left:{limit / scale * 100:.1f}%">{limit_label}</div></div>'
+        f'<span class="it-status" style="color:{GOOD_TEXT[mode] if ok else CRITICAL}">{status}</span>'
     )
+
+
+def risk_meter(loss: float, limit: float, mode: str, crisis_loss: float | None = None) -> str:
+    """Bad-year loss against the user's limit; with `crisis_loss` a second bar shows the assumed severe-crisis loss.
+
+    Status is always icon + words, never colour alone.
+    """
+    losses = [loss] + ([crisis_loss] if crisis_loss is not None else [])
+    scale = max(limit, *(-x for x in losses)) * 1.35 or 1
+    first = _meter_row("Perkiraan turun di tahun buruk" if crisis_loss is None else "Tahun buruk (data 1 tahun)", loss, limit,
+                       scale, mode, show_limit_label=crisis_loss is None)
+    if crisis_loss is None:
+        return f'<div class="it-meter">{first}</div>'
+    second = _meter_row("Krisis berat (asumsi)", crisis_loss, limit, scale, mode, show_limit_label=True)
+    return f'<div class="it-meter">{first}<div class="it-meter-gap"></div>{second}</div>'
+
 
 
 def legend_rows(allocation: dict[str, float], amounts: dict[str, float], mode: str) -> str:

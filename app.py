@@ -223,6 +223,15 @@ with st.sidebar:
         inflation = st.slider("Asumsi inflasi per tahun (%)", 0.0, 10.0, 3.0, 0.5,
                               help="Dipakai untuk menghitung nilai akhir dalam daya beli hari ini.") / 100
 
+    with st.expander("Skenario krisis (uji risiko)"):
+        st.caption("Dipakai untuk bar 'Krisis berat' di tab Rekomendasi. Ini asumsi, bukan data: data produk hanya mencakup "
+                   "1 tahun terakhir, sehingga krisis yang lebih dalam belum terlihat di sana.")
+        crisis_saham = st.slider("Saham turun (%)", 10, 70, 40, 5, help="Contoh kasar: pasar saham turun 35-50% di krisis besar.")
+        crisis_obl = st.slider("Obligasi turun (%)", 0, 25, 8, 1, help="Obligasi turun saat suku bunga naik cepat atau penerbit bermasalah.")
+        crisis_pu = st.slider("Pasar uang turun (%)", 0, 5, 0, 1)
+        st.caption("Reksa dana campuran dihitung 60% saham dan 40% obligasi; SBN bergerak seperti obligasi.")
+    crisis = metrics.crisis_shocks(crisis_saham, crisis_obl, crisis_pu)
+
     with st.expander("Dana darurat (untuk tab Portofolio)"):
         st.caption("Dipakai untuk memeriksa apakah dana darurat Anda sudah cukup di portofolio. Boleh dikosongkan.")
         expense = st.number_input("Pengeluaran bulanan (Rp)", 0, 1_000_000_000, 0, 500_000,
@@ -317,11 +326,14 @@ with tab_rec:
     for note in rec.notes:
         st.warning(note)
 
+    # severe-crisis loss of what will actually be held: the whole portfolio after this month's deposit, else the recommended mix
+    crisis_loss = portfolio_plan.stress(plan.after, crisis) if plan.has_portfolio else metrics.stress_loss(rec.allocation, crisis)
     k1, k2, k3, k4 = st.columns(4, gap="medium")
     k1.markdown(ui.kpi(RISK_TITLE, ui.fmt_level(rec.level), alloc_text(rec.target_allocation), profile_name(rec.profile_key)),
                 unsafe_allow_html=True)
     k2.markdown(ui.kpi("Perkiraan turun total portofolio" if plan.has_portfolio else "Perkiraan turun di tahun buruk",
-                       ui.fmt_pct(rec.stress_loss * 100), f"batas Anda -{max_drop_pct}%"), unsafe_allow_html=True)
+                       ui.fmt_pct(rec.stress_loss * 100),
+                       f"batas Anda -{max_drop_pct}% · krisis berat {ui.fmt_pct(crisis_loss * 100)}"), unsafe_allow_html=True)
     k3.markdown(ui.kpi("Dana per bulan", ui.fmt_idr_short(budget), f"{ui.fmt_idr_short(budget * 12 * horizon)} selama {horizon:g} tahun"),
                 unsafe_allow_html=True)
     k4.markdown(ui.kpi(f"Proyeksi {horizon:g} tahun ({SCENARIO_KEY})", ui.fmt_idr_short(default_fv),
@@ -343,7 +355,13 @@ with tab_rec:
         st.markdown(f"**Posisi di skala {RISK_TITLE.lower()} Bibit**")
         st.markdown(ui.profile_scale(level_values, level_losses, max_drop_pct / 100, rec.level), unsafe_allow_html=True)
         st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
-        st.markdown(ui.risk_meter(rec.stress_loss, max_drop_pct / 100, mode), unsafe_allow_html=True)
+        st.markdown(ui.risk_meter(rec.stress_loss, max_drop_pct / 100, mode, crisis_loss), unsafe_allow_html=True)
+        if -crisis_loss > max_drop_pct / 100:
+            st.warning(f"Bila krisis berat terjadi, perkiraan turun bisa mencapai {ui.fmt_pct(-crisis_loss * 100)} "
+                       f"dan melewati batas {max_drop_pct}% Anda. Pertimbangkan profil yang lebih konservatif, atau pastikan Anda "
+                       "tidak menjual saat turun. Asumsi krisis bisa diubah di sidebar.", icon=":material/warning:")
+        st.caption("Tahun buruk dihitung dari data 1 tahun terakhir; krisis berat adalah asumsi. Risiko obligasi yang sebenarnya "
+                   "(durasi, kualitas penerbit, konsentrasi) belum dibaca sistem karena prospektus tidak dimuat; cek fund fact sheet.")
         if plan.has_portfolio:
             st.caption(f"Dihitung untuk seluruh portofolio setelah setoran bulan ini (nilai sekarang {ui.fmt_idr_short(plan.total_now)}). "
                        f"Sebelum setoran: {ui.fmt_pct(plan.stress_now * 100)}.")
@@ -397,6 +415,10 @@ with tab_rec:
     cc1, cc2 = st.columns([3, 2], gap="medium")
     with cc1, st.container(border=True):
         st.plotly_chart(ui.compare_chart(cmp, mode), width="stretch", config={"displayModeBar": False})
+        st.caption("Cara membandingkan: rata-rata tertimbang return kumulatif satu produk per jenis, dengan porsi yang sama "
+                   "(komposisi profil Bibit) dan periode serta tanggal data yang sama. Return berbasis NAV, jadi sudah setelah "
+                   "biaya pengelolaan. Bukan simulasi setoran bulanan, tanpa rebalancing, dan tanpa biaya transaksi. "
+                   "Bobotnya sama; yang berbeda hanya produknya.")
     with cc2, st.container(border=True):
         st.markdown("**Pilihan sistem**")
         for p in ours_picks.values():
@@ -492,7 +514,7 @@ with tab_rec:
         {"horizon_years": horizon, "monthly_budget": float(budget), "max_drop_pct": max_drop_pct,
          "syariah_only": syariah_only, "auto": is_auto},
         data_date, note, projection={"inflation": inflation, "rates": scen_rate},
-        portfolio=portfolio_plan.snapshot_block(plan),
+        portfolio=portfolio_plan.snapshot_block(plan), crisis={"loss": crisis_loss, "shocks": crisis},
     )
     b_save, b_pdf, _ = st.columns([2, 2, 3], gap="small")
     if b_save.button("Simpan rekomendasi hari ini", icon=":material/bookmark_add:", width="stretch"):
@@ -543,8 +565,11 @@ with tab_rec:
             "- **Peringkat**: persentil dalam kategori. Pasar uang: return 1 tahun, ukuran dana, penurunan kecil. "
             "Obligasi: return 3 tahun per risiko turun, penurunan kecil, ukuran. Saham: berbasis indeks, penurunan kecil, ukuran, return 3 tahun.\n"
             "- **Tidak ada** produk yang dipilih hanya karena return tertingginya tahun lalu.\n"
+            "- **Uji risiko**: dua angka. *Tahun buruk* memakai penurunan terdalam 1 tahun terakhir dari data. *Krisis berat* memakai "
+            "asumsi yang bisa Anda ubah (default saham -40%, obligasi -8%), karena data 1 tahun tidak memuat krisis besar.\n"
             "- **Keterbatasan**: data hanya snapshot; drawdown hanya mencakup 1 tahun terakhir; sistem tidak membaca prospektus "
-            "(isi portofolio, biaya, expense ratio), dan klasifikasi jenis mengikuti Bibit. Cek halaman produk sebelum membeli."
+            "(isi portofolio, biaya, expense ratio, durasi dan kualitas penerbit obligasi), dan klasifikasi jenis mengikuti Bibit. "
+            "Cek halaman produk sebelum membeli."
         )
 
 # ----------------------------------------------------------------------------- Portofolio
@@ -588,14 +613,18 @@ with tab_risk:
                            "Skenario hipotetis: semua jenis aset turun bersamaan."), unsafe_allow_html=True)
     max_drop = max_drop_pct / 100
     src_rec, src_robo, src_manual = "Sama dengan rekomendasi", "Produk robo Bibit", "Asumsi manual"
+    src_crisis = "Krisis berat (asumsi)"
     source = st.segmented_control(
-        "Asumsi penurunan", [src_rec, src_robo, src_manual], default=src_rec, key="shock_source",
+        "Asumsi penurunan", [src_rec, src_crisis, src_robo, src_manual], default=src_rec, key="shock_source",
         help="Sama dengan rekomendasi: skenario berat yang dipakai tab Rekomendasi. Produk robo Bibit: penurunan terdalam "
              "1 tahun dari Sucorinvest Money Market Fund, ABF Indonesia Bond Index Fund, dan BNI-AM Indeks IDX30.") or src_rec
     base = dict(metrics.DEFAULT_SHOCKS)
     if source == src_rec:
         base.update(rec.shocks)
         st.caption("Angka yang sama dengan tab Rekomendasi: yang lebih buruk antara produk teratas dan median jenisnya.")
+    elif source == src_crisis:
+        base.update(crisis)
+        st.caption("Skenario krisis dari sidebar (Skenario krisis). Ini asumsi, bukan data; lihat profil mana yang melewati batas Anda.")
     elif source == src_robo:
         base.update(products.robo_shocks(catalog, robo.resolve(recommend.level_of(rec.profile_key), robo.load())[0]))
         st.caption("Penurunan terdalam 1 tahun produk robo Bibit. Tahun buruk berikutnya bisa lebih dalam, "

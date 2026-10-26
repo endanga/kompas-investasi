@@ -115,6 +115,16 @@ DEFAULT_SHOCKS = {
 }
 
 
+def crisis_shocks(saham_pct: float = 40.0, obligasi_pct: float = 8.0, pasar_uang_pct: float = 0.0) -> dict[str, float]:
+    """Severe-crisis price shocks (negative fractions) from three percentages the user can set.
+
+    These are ASSUMPTIONS, not measured history: the data only covers the last year. Mixed funds are taken as 60% stocks
+    and 40% bonds, and SBN moves like bonds.
+    """
+    saham, obl, pu = -saham_pct / 100, -obligasi_pct / 100, -pasar_uang_pct / 100
+    return {"saham": saham, "pendapatan_tetap": obl, "sbn": obl, "pasar_uang": pu, "campuran": 0.6 * saham + 0.4 * obl}
+
+
 def stress_loss(allocation: dict[str, float], shocks: dict[str, float] | None = None) -> float:
     """Portfolio fall (negative fraction) if every category hits its shock at once."""
     shocks = DEFAULT_SHOCKS if shocks is None else shocks

@@ -216,24 +216,27 @@ def _portfolio_section(snap: dict) -> list:
     return items
 
 
-def _risk_drawing(loss: float, limit: float, ok: bool, whole: bool = False) -> Drawing:
-    w, h = CONTENT_W, 46
-    d = Drawing(w, h)
-    fall = -loss
-    scale = max(limit, fall) * 1.35 or 1
-    x0, x1, y = 0, w, 20
-    d.add(Rect(x0, y, x1 - x0, 11, rx=5.5, ry=5.5, fillColor=HexColor("#e6ebe8"), strokeColor=None))
-    fill = GOOD if ok else CRITICAL
-    d.add(Rect(x0, y, max((x1 - x0) * fall / scale, 11), 11, rx=5.5, ry=5.5, fillColor=fill, strokeColor=None))
-    lx = (x1 - x0) * limit / scale
-    d.add(Line(lx, y - 5, lx, y + 16, strokeColor=INK, strokeWidth=1.6))
-    d.add(String(lx, y + 21, f"batas Anda -{limit:.0%}", fontName="Helvetica-Bold", fontSize=8, fillColor=INK,
-                 textAnchor="middle" if lx > 60 else "start"))
-    d.add(String(0, y - 14, f"Perkiraan turun {'total portofolio' if whole else 'di tahun buruk'}: {fmt_pct(-fall * 100)}", fontName="Helvetica-Bold",
-                 fontSize=9.5, fillColor=INK))
-    status = "DALAM BATAS ANDA" if ok else "MELEWATI BATAS ANDA"
-    d.add(String(w, y - 14, status, fontName="Helvetica-Bold", fontSize=9.5, fillColor=GOOD if ok else CRITICAL,
-                 textAnchor="end"))
+def _risk_drawing(loss: float, limit: float, ok: bool, whole: bool = False, crisis_loss: float | None = None) -> Drawing:
+    """Bad-year bar, plus a second bar for the assumed severe crisis when given. Status is words, not colour alone."""
+    w = CONTENT_W
+    two = crisis_loss is not None
+    d = Drawing(w, 94 if two else 46)
+    scale = max(limit, -loss, -(crisis_loss or 0.0)) * 1.35 or 1
+    lx = w * limit / scale
+    scope = "total portofolio" if whole else "di tahun buruk"
+    rows = [(62 if two else 20, loss, f"Perkiraan turun {scope}" + (" (data 1 tahun)" if two else ""), ok)]
+    if two:
+        rows.append((18, crisis_loss, "Krisis berat (asumsi)", -crisis_loss <= limit))
+    for i, (y, value, label, row_ok) in enumerate(rows):
+        d.add(Rect(0, y, w, 11, rx=5.5, ry=5.5, fillColor=HexColor("#e6ebe8"), strokeColor=None))
+        d.add(Rect(0, y, max(w * -value / scale, 11), 11, rx=5.5, ry=5.5, fillColor=GOOD if row_ok else CRITICAL, strokeColor=None))
+        d.add(Line(lx, y - 5, lx, y + 16, strokeColor=INK, strokeWidth=1.6))
+        if i == 0:
+            d.add(String(lx, y + 21, f"batas Anda -{limit:.0%}", fontName="Helvetica-Bold", fontSize=8, fillColor=INK,
+                         textAnchor="middle" if lx > 60 else "start"))
+        d.add(String(0, y - 14, f"{label}: {fmt_pct(value * 100)}", fontName="Helvetica-Bold", fontSize=9.5, fillColor=INK))
+        d.add(String(w, y - 14, "DALAM BATAS ANDA" if row_ok else "MELEWATI BATAS ANDA", fontName="Helvetica-Bold", fontSize=9.5,
+                     fillColor=GOOD if row_ok else CRITICAL, textAnchor="end"))
     return d
 
 
@@ -461,7 +464,19 @@ def build_pdf(snap: dict, current: bool = False) -> bytes:
     story += _portfolio_section(snap)
     story.append(CondPageBreak(60 * mm))
     story += _section("Batas risiko Anda", "Perkiraan turun dihitung dari simulasi tahun buruk, dibandingkan dengan batas yang Anda tetapkan.")
-    story += [_risk_drawing(snap["stress_loss"], inputs["max_drop_pct"] / 100, snap["within_limit"], whole=bool(snap.get("portfolio")))]
+    crisis = snap.get("crisis")
+    story += [_risk_drawing(snap["stress_loss"], inputs["max_drop_pct"] / 100, snap["within_limit"], whole=bool(snap.get("portfolio")),
+                            crisis_loss=crisis["loss"] if crisis else None)]
+    if crisis:
+        sh = crisis["shocks"]
+        def pct(value: float) -> str:
+            return "0%" if abs(value) < 5e-4 else _e(fmt_pct(value * 100))
+
+        story += [Spacer(1, 4), _p("<b>Krisis berat adalah asumsi, bukan data</b>: saham " + pct(sh.get("saham", 0)) + ", obligasi "
+                     + pct(sh.get("pendapatan_tetap", 0)) + ", pasar uang " + pct(sh.get("pasar_uang", 0))
+                     + ". Data produk hanya mencakup 1 tahun terakhir, jadi penurunan yang lebih dalam di masa lalu atau masa depan "
+                     "belum tercermin di bar pertama. Bila bar kedua melewati batas Anda, itu sinyal untuk mempertimbangkan profil "
+                     "yang lebih konservatif.", "small")]
     story += _section(f"Posisi di skala profil risiko Bibit", "Skala 1 (paling konservatif) sampai 10 (paling agresif).")
     story += [_scale_drawing(prof["level"])]
 
@@ -485,7 +500,7 @@ def build_pdf(snap: dict, current: bool = False) -> bytes:
                  "3 tahun (kecuali pasar uang), lalu diperingkat per kategori. Tidak ada produk yang dipilih hanya karena "
                  "return tertinggi tahun lalu.", "small"), Spacer(1, 3),
               _p("<b>Keterbatasan.</b> Data hanya snapshot; penurunan terdalam hanya mencakup 1 tahun terakhir; sistem tidak membaca "
-                 "prospektus (isi portofolio, biaya). Kinerja masa lalu dan proyeksi bukan jaminan hasil. Nilai reksa dana bisa "
+                 "prospektus (isi portofolio, biaya, durasi dan kualitas penerbit obligasi). Kinerja masa lalu dan proyeksi bukan jaminan hasil. Nilai reksa dana bisa "
                  "naik maupun turun.", "small")]
     footer = _footer(snap)
     doc.build(story, onFirstPage=footer, onLaterPages=footer)

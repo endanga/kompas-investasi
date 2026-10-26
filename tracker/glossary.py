@@ -69,8 +69,9 @@ GROUPS: dict[str, list[tuple[str, str, str]]] = {
         ("Drawdown", "Penurunan dari titik tertinggi ke titik terendah berikutnya. Di aplikasi ini angkanya diambil dari 1 tahun "
                      "terakhir, jadi penurunan yang lebih lama atau lebih dalam di masa lalu belum terlihat.",
          "Naik ke Rp120, turun ke Rp90: drawdown 25%."),
-        ("Stress test", "Simulasi 'bagaimana kalau tahun yang buruk terjadi': tiap jenis aset diberi penurunan yang masuk akal "
-                        "lalu dihitung kerugian total. Hasilnya diberi label 'perkiraan turun di tahun buruk'.", ""),
+        ("Stress test", "Simulasi 'bagaimana kalau terjadi hal buruk': tiap jenis aset diberi penurunan lalu dihitung kerugian total. "
+                        "Di sini ada dua: 'tahun buruk' dari data 1 tahun terakhir, dan 'krisis berat' dari asumsi yang bisa Anda ubah.",
+         "Saham -40% dan obligasi -8% pada komposisi 18% saham dan 70% obligasi: kerugian sekitar 12,8%."),
         ("Risiko pasar", "Risiko nilai turun karena kondisi pasar secara umum, bukan karena kesalahan satu produk.", ""),
         ("Risiko suku bunga", "Saat suku bunga naik, harga obligasi yang sudah ada cenderung turun, dan sebaliknya. Makin "
                               "panjang jatuh temponya, makin besar pengaruhnya.", ""),
