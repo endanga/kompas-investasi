@@ -430,6 +430,40 @@ def scenario_table(rows: list[dict], base: float, base_label: str, limit: float,
             f'✓ dalam batas -{limit:.0%} Anda · ✕ melewati batas</div>')
 
 
+def level_compare(rows: list[dict], base: float, base_label: str, limit: float, chosen: float | None = None) -> str:
+    """Risk levels side by side. Every number comes from the same shocks and assumptions; status is icon + words."""
+    def alloc(a):
+        return " · ".join(f"{CATEGORY_NAMES.get(c, c)} {v:.0%}" for c, v in a.items())
+
+    head = "".join(f"<th>Level {fmt_level(r['level'])}{' (dipilih)' if r['level'] == chosen else ''}</th>" for r in rows)
+
+    def line(label, cells):
+        return f"<tr><th>{_e(label)}</th>{cells}</tr>"
+
+    def check_cells(i):
+        out = ""
+        for r in rows:
+            c = r["checks"][i]
+            tag = "✕ melewati batas" if c["crossed"] else "⚠ ruang tipis" if c["thin"] else "✓ ada ruang"
+            out += (f'<td class="{"ok" if c["passed"] else "bad"}"><b>{_e(fmt_pct(c["loss"] * 100))}</b> '
+                    f'<br>{_e(fmt_idr_short(c["loss"] * base))} · ruang {c["margin_points"]:+.2f} poin<br>{tag}</td>')
+        return out
+
+    names = [c["name"] for c in rows[0]["checks"]]
+    body = line("Alokasi", "".join(f"<td>{_e(alloc(r['allocation']))}</td>" for r in rows))
+    for i, n in enumerate(names):
+        body += line(n, check_cells(i))
+    body += line("Memenuhi semua pemeriksaan", "".join(
+        f'<td class="{"ok" if r["meets_all"] else "bad"}"><b>{"✓ ya" if r["meets_all"] else "✕ tidak"}</b></td>' for r in rows))
+    for name in rows[0]["projection"]:
+        body += line(f"Proyeksi skenario {name} (asumsi)", "".join(f"<td>{_e(fmt_idr_short(r['projection'][name]))}</td>" for r in rows))
+    body += line("Kelemahan data", "".join(
+        f"<td>{_e('; '.join(r['weaknesses']) or 'tidak ada yang tercatat')}</td>" for r in rows))
+    return (f'<table class="it-grid it-scen"><thead><tr><th></th>{head}</tr></thead><tbody>{body}</tbody></table>'
+            f'<div class="it-grid-key">Rupiah dihitung dari {_e(base_label)} ({_e(fmt_idr_short(base))}). Semua level memakai guncangan, '
+            "krisis, skenario, dan asumsi return yang sama. Proyeksi bukan prediksi.</div>")
+
+
 def legend_rows(allocation: dict[str, float], amounts: dict[str, float], mode: str) -> str:
     rows = "".join(
         f'<div class="it-legendrow"><span><span class="it-dot" style="background:{category_color(c, mode)}"></span>'

@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import math
 import re
+from datetime import date
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -159,12 +160,63 @@ class Recommendation:
     # Filled by portfolio_plan.apply: the risk level's own mix, and how this month's deposit closes the gap to it.
     target_allocation: dict[str, float] = field(default_factory=dict)
     plan: object | None = None
+    checks: list = field(default_factory=list)      # metrics.stress_checks of the chosen level (strict rule)
+    strict: bool = False
+
+
+STALE_DAYS = 30   # product data older than this is called out: prices and fact sheets may have moved
+
+
+def conservative_gov_share(rankings: dict[str, pd.DataFrame]) -> float | None:
+    """Least government share (0-1) among the top bond picks; an unreadable fact sheet counts as 0, never as safe."""
+    bonds = rankings.get("pendapatan_tetap")
+    if bonds is None or bonds.empty or "gov_top10_pct" not in bonds:
+        return None
+    return float(bonds.head(TOP_N)["gov_top10_pct"].fillna(0.0).min()) / 100
+
+
+def quality_notes(products: pd.DataFrame, rankings: dict[str, pd.DataFrame], today: date | None = None) -> list[str]:
+    """Warnings about the data the recommendation stands on. Missing data is never silently treated as fine."""
+    notes = []
+    if "as_of" in products and products["as_of"].notna().any():
+        age = ((today or date.today()) - pd.to_datetime(products["as_of"].iloc[0]).date()).days
+        if age > STALE_DAYS:
+            notes.append(f"Data produk berumur {age} hari (lebih dari {STALE_DAYS}). Harga dan fund fact sheet mungkin sudah "
+                         "berubah; perbarui data sebelum membeli.")
+    bonds = rankings.get("pendapatan_tetap")
+    if bonds is not None and not bonds.empty:
+        top = bonds.head(TOP_N)
+        gov = top["gov_top10_pct"] if "gov_top10_pct" in top else pd.Series(np.nan, index=top.index)
+        unread = [n for n, g in zip(top["name"], gov) if pd.isna(g)]
+        if unread:
+            notes.append("Komposisi belum terverifikasi untuk dana obligasi pilihan: " + ", ".join(unread)
+                         + ". Risiko kredit dana ini tidak diketahui; stress test menganggapnya tanpa obligasi negara.")
+        elif (gov < 30).any():
+            notes.append("Sebagian dana obligasi pilihan mayoritas berisi obligasi korporasi: harganya bisa tampak stabil, "
+                         "tetapi risiko gagal bayar penerbit tidak terlihat di grafik harga.")
+    return notes
+
+
+def _skipped_note(level: float, checks: list[dict]) -> str:
+    bad = next(c for c in checks if not c["passed"])
+    why = ("melewati batas" if bad["crossed"]
+           else f"ruangnya hanya {bad['margin_points']:+.2f} poin (kurang dari {metrics.MARGIN_THIN * 100:g})")
+    return (f"Profil risiko {level:g} tidak dipilih otomatis: {bad['name'].lower()} {bad['loss'] * 100:.1f}%, {why} "
+            "terhadap batas Anda. Ini simulasi, bukan batas kerugian aktual.")
 
 
 def recommend(products: pd.DataFrame, profiles: dict[str, dict[str, float]], max_drop: float,
-              horizon_years: float, monthly_budget: float, syariah_only: bool = False) -> Recommendation:
-    """Pick the highest Bibit level whose stress loss (using the drawdown of the top-ranked funds) fits `max_drop`."""
+              horizon_years: float, monthly_budget: float, syariah_only: bool = False,
+              crisis: dict[str, float] | None = None, strict: bool = True, today: date | None = None) -> Recommendation:
+    """Pick the highest Bibit level that fits `max_drop`.
+
+    strict=True (default): a level fits only if EVERY check in `metrics.stress_checks` passes with room to spare: the bad
+    year estimated from fund prices, the user's crisis assumption, and the worst separate scenario. One scenario or a margin
+    under 1 percentage point is not enough. strict=False keeps the older rule (bad-year estimate only, no margin).
+    """
     rankings, shocks = _rank_and_shock(products, syariah_only)
+    crisis = crisis or metrics.crisis_shocks()
+    gov = conservative_gov_share(rankings)
 
     cap = horizon_level_cap(horizon_years)
     levels = sorted(((level_of(k), k) for k in profiles if level_of(k) is not None), reverse=True)
@@ -173,22 +225,71 @@ def recommend(products: pd.DataFrame, profiles: dict[str, dict[str, float]], max
     if cap < 10:
         notes.append(f"Tujuan {horizon_years:g} tahun: level dibatasi maksimal {cap:g} (aturan umum, makin pendek makin aman).")
 
-    chosen = None
+    chosen, skipped = None, []
     for lv, key in levels:
-        if -metrics.stress_loss(profiles[key], shocks) <= max_drop:
+        if strict:
+            checks = metrics.stress_checks(profiles[key], shocks, crisis, gov, max_drop)
+            ok = all(c["passed"] for c in checks)
+            if not ok:
+                skipped.append((lv, checks))
+        else:
+            ok = -metrics.stress_loss(profiles[key], shocks) <= max_drop
+        if ok:
             chosen = (lv, key)
             break
     within = chosen is not None
     if chosen is None:
         chosen = levels[-1]
-        notes.append("Tidak ada level yang masuk batas penurunan Anda; ditampilkan level paling konservatif. "
+        notes.append("Tidak ada level yang memenuhi semua pemeriksaan risiko Anda; ditampilkan level paling konservatif. "
                      "Pertimbangkan menaikkan batas atau memperpanjang horizon.")
     lv, key = chosen
-    return _assemble(rankings, shocks, profiles[key], key, lv, monthly_budget, within, notes)
+    checks = metrics.stress_checks(profiles[key], shocks, crisis, gov, max_drop) if strict else []
+    if strict and skipped and within:
+        notes.append(_skipped_note(*skipped[-1]))       # the level just above the one chosen
+    notes += quality_notes(products, rankings, today)
+    rec = _assemble(rankings, shocks, profiles[key], key, lv, monthly_budget, within, notes)
+    rec.checks, rec.strict = checks, strict
+    return rec
+
+
+VERIFIED_LEVELS = (4.5, 5.0)   # compositions checked against the Bibit app; the rest come from the user's own notes
+
+
+def compare_levels(products: pd.DataFrame, profiles: dict[str, dict[str, float]], levels: list[float], max_drop: float,
+                   crisis: dict[str, float], rates: dict[str, dict[str, float]], monthly_budget: float, horizon_years: float,
+                   syariah_only: bool = False) -> list[dict]:
+    """Risk levels side by side under IDENTICAL shocks, crisis, scenarios and return assumptions.
+
+    Each row: allocation, the three stress checks (bad year from data, crisis assumption, worst separate scenario) with their
+    room under the limit, the projection under every return scenario (assumptions, not predictions), and the weaknesses.
+    """
+    rankings, shocks = _rank_and_shock(products, syariah_only)
+    gov = conservative_gov_share(rankings)
+    by_level = {level_of(k): k for k in profiles if level_of(k) is not None}
+    rows = []
+    for lv in sorted(set(levels)):
+        if lv not in by_level:
+            continue
+        a = profiles[by_level[lv]]
+        checks = metrics.stress_checks(a, shocks, crisis, gov, max_drop)
+        weak = []
+        if lv not in VERIFIED_LEVELS:
+            weak.append("komposisi belum dicocokkan dengan aplikasi Bibit (dari catatan Anda)")
+        if gov is None or gov == 0:
+            weak.append("risiko kredit obligasi belum terverifikasi atau didominasi korporasi")
+        rows.append({
+            "level": lv, "allocation": {c: v for c, v in a.items() if v > 0}, "checks": checks,
+            "meets_all": all(c["passed"] for c in checks),
+            "projection": {name: metrics.future_value_dca(monthly_budget, metrics.blended_rate(a, r), horizon_years)
+                           for name, r in rates.items()},
+            "weaknesses": weak,
+        })
+    return rows
 
 
 def for_level(products: pd.DataFrame, profiles: dict[str, dict[str, float]], profile_key: str,
-              monthly_budget: float, syariah_only: bool = False, max_drop: float | None = None) -> Recommendation:
+              monthly_budget: float, syariah_only: bool = False, max_drop: float | None = None,
+              crisis: dict[str, float] | None = None) -> Recommendation:
     """Recommendation for one specific Bibit level, regardless of the user's own tolerance.
 
     `max_drop` only sets the `within_limit` flag; it never changes the chosen level.
@@ -198,7 +299,11 @@ def for_level(products: pd.DataFrame, profiles: dict[str, dict[str, float]], pro
     rec = _assemble(rankings, shocks, profiles[profile_key], profile_key, lv if lv is not None else 0.0,
                     monthly_budget, True, [])
     if max_drop is not None:
-        rec.within_limit = -rec.stress_loss <= max_drop
+        rec.checks = metrics.stress_checks(profiles[profile_key], shocks, crisis or metrics.crisis_shocks(),
+                                           conservative_gov_share(rankings), max_drop)
+        rec.within_limit = all(c["passed"] for c in rec.checks)
+        rec.strict = True
+    rec.notes += quality_notes(products, rankings)
     return rec
 
 

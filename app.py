@@ -197,7 +197,11 @@ with st.sidebar:
         help="Sistem memilih profil risiko tertinggi yang masih dalam batas penurunan dan horizon Anda. "
              "Matikan untuk memilih sendiri, misalnya sama dengan robo di aplikasi Bibit.",
     )
-    auto_rec = recommend.recommend(catalog, all_profiles, max_drop_pct / 100, horizon, float(budget), syariah_only)
+    auto_rec = recommend.recommend(
+        catalog, all_profiles, max_drop_pct / 100, horizon, float(budget), syariah_only,
+        crisis=metrics.crisis_shocks(st.session_state.get("crisis_saham", 40), st.session_state.get("crisis_obl", 8),
+                                     st.session_state.get("crisis_pu", 0)),
+        strict=st.session_state.get("strict_rule", True))
     if is_auto:
         st.slider(RISK_TITLE, 1.0, 10.0, float(auto_rec.level), 0.5, format="%.1f",
                   disabled=True, key=f"risk_auto_{auto_rec.level}")
@@ -223,12 +227,17 @@ with st.sidebar:
         inflation = st.slider("Asumsi inflasi per tahun (%)", 0.0, 10.0, 3.0, 0.5,
                               help="Dipakai untuk menghitung nilai akhir dalam daya beli hari ini.") / 100
 
+    strict_rule = st.toggle(
+        "Aturan konservatif (disarankan)", value=True, key="strict_rule",
+        help="Pilih otomatis hanya bila tahun buruk (data), krisis berat (asumsi Anda), dan skenario terpisah terburuk semuanya "
+             "berada di bawah batas dengan ruang minimal 1 poin. Dimatikan: hanya tahun buruk dari data yang diperiksa, "
+             "tanpa syarat ruang.")
     with st.expander("Skenario krisis (uji risiko)"):
         st.caption("Dipakai untuk bar 'Krisis berat' di tab Rekomendasi. Ini asumsi, bukan data: data produk hanya mencakup "
                    "1 tahun terakhir, sehingga krisis yang lebih dalam belum terlihat di sana.")
-        crisis_saham = st.slider("Saham turun (%)", 10, 70, 40, 5, help="Contoh kasar: pasar saham turun 35-50% di krisis besar.")
-        crisis_obl = st.slider("Obligasi turun (%)", 0, 25, 8, 1, help="Obligasi turun saat suku bunga naik cepat atau penerbit bermasalah.")
-        crisis_pu = st.slider("Pasar uang turun (%)", 0, 5, 0, 1)
+        crisis_saham = st.slider("Saham turun (%)", 10, 70, 40, 5, key="crisis_saham", help="Contoh kasar: pasar saham turun 35-50% di krisis besar.")
+        crisis_obl = st.slider("Obligasi turun (%)", 0, 25, 8, 1, key="crisis_obl", help="Obligasi turun saat suku bunga naik cepat atau penerbit bermasalah.")
+        crisis_pu = st.slider("Pasar uang turun (%)", 0, 5, 0, 1, key="crisis_pu")
         st.caption("Reksa dana campuran dihitung 60% saham dan 40% obligasi; SBN bergerak seperti obligasi.")
     crisis = metrics.crisis_shocks(crisis_saham, crisis_obl, crisis_pu)
 
@@ -270,7 +279,7 @@ if st.session_state.pop("robo_prompt", False):
 if is_auto:
     rec = auto_rec
 else:
-    rec = recommend.for_level(catalog, all_profiles, chosen_key, float(budget), syariah_only, max_drop_pct / 100)
+    rec = recommend.for_level(catalog, all_profiles, chosen_key, float(budget), syariah_only, max_drop_pct / 100, crisis=crisis)
     if rec.level > recommend.horizon_level_cap(horizon):
         rec.notes.append(
             f"{RISK_TITLE} {ui.fmt_level(rec.level)} di atas batas umum untuk tujuan {horizon:g} tahun "
@@ -361,6 +370,29 @@ with tab_rec:
         margin_text, margin_warn = ui.margin_note(rec.stress_loss, max_drop_pct / 100, margin_base, margin_label, rec.level,
                                                   max(lower_levels) if lower_levels else None)
         (st.warning if margin_warn else st.caption)(margin_text, **({"icon": ":material/warning:"} if margin_warn else {}))
+        if rec.checks:
+            with st.expander("Apakah level ini benar-benar memenuhi batas Anda? Pemeriksaan satu per satu"):
+                for c in rec.checks:
+                    tag = "melewati batas" if c["crossed"] else "ruang tipis (dianggap belum memenuhi)" if c["thin"] else "ada ruang"
+                    st.markdown(f"- **{c['name']}** ({c['kind']}): {ui.fmt_pct(c['loss'] * 100)}, ruang {c['margin_points']:+.2f} poin, {tag}")
+                st.caption("Level dianggap memenuhi batas hanya bila semua pemeriksaan lolos dengan ruang minimal "
+                           f"{metrics.MARGIN_THIN * 100:g} poin. Ketiganya adalah sudut pandang berbeda pada risiko yang sama dan "
+                           "tidak dijumlahkan. Semuanya simulasi, bukan batas kerugian aktual.")
+        with st.expander("Empat angka yang sering tertukar"):
+            st.markdown(
+                "1. **Penurunan historis terdalam**: seberapa dalam harga satu dana pernah turun dalam 1 tahun terakhir. Fakta masa lalu, "
+                "hanya 1 tahun.\n"
+                "2. **Estimasi kerugian kondisi buruk**: gabungan penurunan historis dana-dana pilihan sesuai porsi alokasi (bar 'Tahun buruk'). "
+                "Perkiraan dari data, bukan ramalan.\n"
+                "3. **Stress test hipotetis**: kerugian bila saham/obligasi turun sebesar angka yang diasumsikan (bar 'Krisis berat' dan "
+                "skenario terpisah). Angkanya asumsi, bukan data.\n"
+                "4. **Toleransi kerugian Anda**: batas yang Anda pilih di sidebar. Itu preferensi Anda, **bukan jaminan** kerugian tidak "
+                "akan lebih besar. Kerugian nyata bisa melewati semua angka di atas.")
+        with st.expander("Bandingkan level di sekitarnya (asumsi sama)"):
+            cmp_levels = sorted({3.5, 4.0, 4.5, rec.level})
+            cmp_rows = recommend.compare_levels(catalog, all_profiles, cmp_levels, max_drop_pct / 100, crisis, rates, float(budget),
+                                                horizon, syariah_only)
+            st.markdown(ui.level_compare(cmp_rows, margin_base, margin_label, max_drop_pct / 100, rec.level), unsafe_allow_html=True)
         if -crisis_loss > max_drop_pct / 100:
             st.warning(f"Bila krisis berat terjadi, perkiraan turun bisa mencapai {ui.fmt_pct(-crisis_loss * 100)} "
                        f"dan melewati batas {max_drop_pct}% Anda. Pertimbangkan profil yang lebih konservatif, atau pastikan Anda "

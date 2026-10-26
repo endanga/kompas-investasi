@@ -136,7 +136,7 @@ def test_recommend_picks_highest_level_within_limit_and_respects_horizon_cap():
         "bibit_9_agresif": {"pasar_uang": 0.10, "pendapatan_tetap": 0.24, "saham": 0.66},
     }
     # stress: level 2 = -4.6%, level 5 = -10.75%, level 9 = -21%
-    r = recommend.recommend(df, profiles, max_drop=0.12, horizon_years=25, monthly_budget=1_000_000)
+    r = recommend.recommend(df, profiles, max_drop=0.12, horizon_years=25, monthly_budget=1_000_000, strict=False)
     assert r.profile_key == "bibit_5_moderat" and r.within_limit
     assert r.stress_loss == pytest.approx(-0.1075)
     assert sum(r.monthly_amounts.values()) == pytest.approx(1_000_000)

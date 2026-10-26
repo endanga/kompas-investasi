@@ -229,6 +229,30 @@ def margin_to_limit(loss: float, limit: float, base: float) -> dict:
     return {"points": margin * 100, "rupiah": margin * base, "thin": 0 <= margin < MARGIN_THIN, "crossed": margin < 0}
 
 
+def stress_checks(allocation: dict[str, float], bad_year_shocks: dict[str, float], crisis: dict[str, float],
+                  gov_share: float | None, limit: float, **scenario_args) -> list[dict]:
+    """The checks a risk level must pass before the system may say it fits the user's loss limit.
+
+    Three different lenses, kept apart because they answer different questions:
+      historis: estimated bad-year loss from the last year of fund prices (data);
+      hipotetis: the user's severe-crisis assumption (stocks/bonds fall by chosen percentages);
+      hipotetis: the worst of the separate scenarios (stocks, yield, spread, default, liquidity), computed with the LEAST
+        government share among the picks, and 0% when a fact sheet is unreadable (unknown is never treated as safe).
+    They are alternative views of the same risk and are never added together. A check passes only with at least
+    MARGIN_THIN of room; a thinner margin is reported as thin and does not count as meeting the limit.
+    """
+    worst = min(scenario_losses(allocation, 0.0 if gov_share is None else gov_share, **scenario_args), key=lambda s: s["loss"])
+    rows = [("Tahun buruk dari data 1 tahun", "historis", stress_loss(allocation, bad_year_shocks)),
+            ("Krisis berat (asumsi Anda)", "hipotetis", stress_loss(allocation, crisis)),
+            (f"Skenario terpisah terburuk: {worst['name']}", "hipotetis", worst["loss"])]
+    out = []
+    for name, kind, loss in rows:
+        m = margin_to_limit(loss, limit, 1.0)
+        out.append({"name": name, "kind": kind, "loss": loss, "margin_points": m["points"], "thin": m["thin"],
+                    "crossed": m["crossed"], "passed": not m["thin"] and not m["crossed"]})
+    return out
+
+
 def months_with_buys(transactions: pd.DataFrame, as_of: date, window: int = 6) -> int:
     """How many of the last `window` calendar months contain at least one BUY."""
     buys = transactions[transactions["type"] == "BUY"]

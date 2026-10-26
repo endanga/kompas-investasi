@@ -50,6 +50,8 @@ def test_saved_record_keeps_crisis_numbers_and_pdf_shows_them(rec):
 
 def test_app_warns_when_the_crisis_scenario_breaks_the_limit():
     at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=120).run()
+    at.toggle(key="strict_rule").set_value(False)       # the conservative rule would already avoid a level that breaks the limit
+    at = at.run()
     assert not at.exception
     assert any("Krisis berat (asumsi)" in m.value for m in at.markdown)
     assert any("krisis berat terjadi" in w.value for w in at.warning)

@@ -15,7 +15,7 @@ def _holdings(rows):
 
 @pytest.fixture(scope="module")
 def rec():
-    return recommend.recommend(products.load_products(), rules.load_profiles(), 0.10, 25, BUDGET)
+    return recommend.recommend(products.load_products(), rules.load_profiles(), 0.10, 25, BUDGET, strict=False)
 
 
 def test_empty_portfolio_keeps_the_target_split():
