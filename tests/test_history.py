@@ -20,7 +20,7 @@ def test_snapshot_is_json_safe_and_complete(rec):
     snap = history.snapshot(rec, INPUTS, "2026-10-26", note="  mulai bulan depan ", now=datetime(2026, 10, 26, 9, 0, 0))
     json.dumps(snap)  # raises if a NumPy/NaN value slipped through
     assert snap["note"] == "mulai bulan depan"
-    assert snap["profile"] == {"key": rec.profile_key, "level": rec.level, "name": "moderat"}
+    assert snap["profile"] == {"key": rec.profile_key, "level": rec.level, "name": rec.profile_key.rsplit("_", 1)[-1]}
     assert set(snap["picks"]) == set(rec.picks) and all(len(v) == 3 for v in snap["picks"].values())
     assert sum(snap["monthly_amounts"].values()) == pytest.approx(5_000_000)
 

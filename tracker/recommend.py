@@ -24,7 +24,8 @@ LEVEL_KEY = re.compile(r"^bibit_([\d.]+)_")
 WEIGHTS = {
     "pasar_uang": {"return_1y_pct": 0.40, "aum_idr": 0.30, "drawdown_1y_pct": 0.30},
     # A flat price is not safety: a fund of corporate bonds can look calm until one issuer defaults. So the share of
-    # government bonds in the top holdings (fact sheet) counts too. Unknown share is ranked in the middle, not punished.
+    # government bonds in the top holdings (fact sheet) counts too. An unreadable fact sheet is scored like the WORST
+    # readable fund: unknown must never beat a fund that is known to be corporate.
     "pendapatan_tetap": {"return_3y_ann": 0.25, "drawdown_1y_pct": 0.15, "aum_idr": 0.25, "gov_top10_pct": 0.35},
     # Index funds get the biggest weight: simple, transparent holdings, and one lucky active year proves little.
     "saham": {"drawdown_1y_pct": 0.25, "aum_idr": 0.25, "index_like": 0.35, "return_3y_pct": 0.15},
@@ -82,6 +83,16 @@ SOURCES = {
 }
 
 
+def _percentiles(df: pd.DataFrame, col: str) -> pd.Series:
+    """Percentile rank inside the category (higher = better). Missing values are never rewarded:
+    a required criterion scores 0, an optional one scores like the worst fund whose value IS known."""
+    ranks = df[col].rank(pct=True, na_option="keep")
+    if col in OPTIONAL:
+        floor = ranks.min() if ranks.notna().any() else 0.0
+        return ranks.fillna(floor)
+    return ranks.fillna(0.0)
+
+
 def _weights(df: pd.DataFrame, category: str) -> dict[str, float]:
     """The criteria actually used: an optional one with no data at all is left out instead of counted as zero."""
     return {c: w for c, w in WEIGHTS.get(category, WEIGHTS["campuran"]).items() if df[c].notna().any() or c not in OPTIONAL}
@@ -98,10 +109,10 @@ def score_breakdown(ranked: pd.DataFrame, category: str, name: str) -> pd.DataFr
     rows = []
     for col, w in weights.items():
         known = pd.notna(row[col])
-        pct = ranked[col].rank(pct=True, na_option="bottom").loc[row.name] if known or col not in OPTIONAL else 0.5
+        pct = _percentiles(ranked, col).loc[row.name]
         rows.append({"kriteria": CRITERIA_LABEL.get(col, col), "nilai": row[col] if known else None,
                      "persentil": round(float(pct), 2), "bobot": round(w / total_w, 3),
-                     "sumber": SOURCES.get(col, "-") if known else SOURCES.get(col, "-") + " (tidak terbaca, dinilai netral)"})
+                     "sumber": SOURCES.get(col, "-") if known else SOURCES.get(col, "-") + " (tidak terbaca, dinilai setara dana terburuk yang terbaca)"})
     return pd.DataFrame(rows)
 
 
@@ -119,10 +130,7 @@ def rank_category(products: pd.DataFrame, category: str, syariah_only: bool = Fa
     total_w = sum(weights.values())
     score = pd.Series(0.0, index=df.index)
     for col, w in weights.items():
-        ranks = df[col].rank(pct=True, na_option="bottom")
-        if col in OPTIONAL:                            # unknown is neither rewarded nor punished
-            ranks = ranks.where(df[col].notna(), 0.5)
-        score += (w / total_w) * ranks
+        score += (w / total_w) * _percentiles(df, col)
     df["score"] = (score * 100).round(1)
     df = df.sort_values(["score", "aum_idr"], ascending=False)
 

@@ -57,9 +57,10 @@ def test_more_government_bonds_ranks_higher_when_everything_else_is_equal():
     assert list(out["name"]) == ["Gov", "Mixed", "Corp"]
 
 
-def test_unknown_share_is_ranked_between_not_punished():
+def test_unknown_share_never_beats_a_fund_known_to_be_corporate():
     out = recommend.rank_category(_bonds(Corp=0.0, Unknown=float("nan"), Gov=100.0), "pendapatan_tetap")
-    assert list(out["name"]) == ["Gov", "Unknown", "Corp"]
+    scores = dict(zip(out["name"], out["score"]))
+    assert scores["Gov"] > scores["Corp"] and scores["Unknown"] <= scores["Corp"]
 
 
 def test_old_products_file_without_the_column_still_ranks():

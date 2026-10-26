@@ -129,39 +129,75 @@ def crisis_shocks(saham_pct: float = 40.0, obligasi_pct: float = 8.0, pasar_uang
 
 # Separate hypothetical scenarios (ASSUMPTIONS, not measured history). Each gives a price shock per holding type.
 # Bonds are split into government and corporate because they do not fail the same way.
-SCENARIOS = (
-    ("Saham jatuh", "Pasar saham turun 40%, obligasi korporasi ikut turun sedikit.",
-     {"saham": -0.40, "obl_negara": 0.0, "obl_korporasi": -0.03, "pasar_uang": 0.0}),
-    ("Yield obligasi negara naik 2 poin", "Suku bunga naik; harga obligasi turun sebesar durasi x 2% (durasi diasumsikan ~4 tahun untuk "
-     "obligasi negara dan ~3 tahun untuk korporasi).",
-     {"saham": -0.05, "obl_negara": -0.08, "obl_korporasi": -0.06, "pasar_uang": 0.0}),
-    ("Spread kredit melebar", "Investor menuntut imbal lebih untuk risiko korporasi; obligasi negara relatif aman.",
-     {"saham": -0.10, "obl_negara": 0.0, "obl_korporasi": -0.07, "pasar_uang": 0.0}),
-    ("Gagal bayar penerbit korporasi besar", "Satu penerbit besar (sekitar 10% dari porsi korporasi) gagal bayar dan nilainya nol.",
-     {"saham": 0.0, "obl_negara": 0.0, "obl_korporasi": -0.10, "pasar_uang": 0.0}),
-    ("Tekanan likuiditas", "Banyak investor menjual bersamaan; aset dijual dengan diskon.",
-     {"saham": -0.10, "obl_negara": -0.03, "obl_korporasi": -0.08, "pasar_uang": -0.005}),
-)
-UNKNOWN_GOV_SHARE = 0.5   # bond fund whose holdings could not be read: assume half corporate, never "all safe"
+# Durations are scenario inputs, not facts about any product: the fact sheets do not state them. As a rough, general
+# reference (not read from this data) Indonesian government-bond funds are often medium duration (about 3-7 years),
+# corporate-bond funds shorter (about 1-3 years), and short-duration index funds around 1-2. The defaults below sit inside
+# those ranges; the sensitivity tests move them.
+YIELD_RISE = 0.02          # +2 percentage points
+DUR_NEGARA = 4.0
+DUR_KORPORASI = 3.0
+UNKNOWN_GOV_SHARE = 0.5    # only for the single-number fallback; the app shows a range when holdings are unknown
+CORPORATE_EXPOSURES = (0.25, 0.5, 1.0)
 
 
-def scenario_losses(allocation: dict[str, float], gov_share: float | None = None) -> list[dict]:
-    """Portfolio fall for each scenario in SCENARIOS (negative fractions).
+def scenarios(dur_negara: float = DUR_NEGARA, dur_korporasi: float = DUR_KORPORASI, yield_rise: float = YIELD_RISE,
+              scale: float = 1.0) -> tuple:
+    """The scenario list. Price fall in a yield scenario = duration x yield rise (first-order; ignores convexity and carry).
+    `scale` multiplies every shock, to ask 'what if everything is worse than assumed'."""
+    raw = (
+        ("Saham jatuh", "Pasar saham turun 40%, obligasi korporasi ikut turun sedikit.",
+         {"saham": -0.40, "obl_negara": 0.0, "obl_korporasi": -0.03, "pasar_uang": 0.0}),
+        ("Yield obligasi negara naik 2 poin",
+         f"Suku bunga naik {yield_rise * 100:g} poin; harga turun sebesar durasi x kenaikan (asumsi durasi {dur_negara:g} tahun "
+         f"untuk obligasi negara dan {dur_korporasi:g} tahun untuk korporasi).",
+         {"saham": -0.05, "obl_negara": -dur_negara * yield_rise, "obl_korporasi": -dur_korporasi * yield_rise, "pasar_uang": 0.0}),
+        ("Spread kredit melebar", "Investor menuntut imbal lebih untuk risiko korporasi; obligasi negara relatif aman.",
+         {"saham": -0.10, "obl_negara": 0.0, "obl_korporasi": -0.07, "pasar_uang": 0.0}),
+        ("Gagal bayar penerbit korporasi besar",
+         "Satu penerbit besar (sekitar 10% dari porsi korporasi) gagal bayar dan nilainya nol.",
+         {"saham": 0.0, "obl_negara": 0.0, "obl_korporasi": -0.10, "pasar_uang": 0.0}),
+        ("Tekanan likuiditas", "Banyak investor menjual bersamaan; aset dijual dengan diskon.",
+         {"saham": -0.10, "obl_negara": -0.03, "obl_korporasi": -0.08, "pasar_uang": -0.005}),
+    )
+    return tuple((n, note, {k: v * scale for k, v in sh.items()}) for n, note, sh in raw)
 
-    `gov_share` (0-1) is the share of bond funds held in government bonds; None means unknown and is flagged,
-    not treated as safe. Mixed funds count as 60% stocks, 40% bonds; SBN counts as government bonds.
+
+SCENARIOS = scenarios()
+
+
+def _buckets(allocation: dict[str, float], gov_share: float) -> dict[str, float]:
+    bond = allocation.get("pendapatan_tetap", 0.0) + 0.4 * allocation.get("campuran", 0.0)
+    return {
+        "saham": allocation.get("saham", 0.0) + 0.6 * allocation.get("campuran", 0.0),
+        "obl_negara": allocation.get("sbn", 0.0) + gov_share * bond,
+        "obl_korporasi": (1 - gov_share) * bond,
+        "pasar_uang": allocation.get("pasar_uang", 0.0),
+    }
+
+
+def scenario_losses(allocation: dict[str, float], gov_share: float | None = None, **scenario_args) -> list[dict]:
+    """Portfolio fall for each scenario (negative fractions).
+
+    `gov_share` (0-1) is the share of bond funds in government bonds. None means UNKNOWN: a flagged 50/50 placeholder is
+    used here, and `gov_share_known` is False so callers must not present the result as fact (see `scenario_range`).
+    Mixed funds count as 60% stocks, 40% bonds; SBN counts as government bonds. `scenario_args` go to `scenarios`.
     """
     known = gov_share is not None
     g = UNKNOWN_GOV_SHARE if gov_share is None else min(max(gov_share, 0.0), 1.0)
-    buckets = {
-        "saham": allocation.get("saham", 0.0) + 0.6 * allocation.get("campuran", 0.0),
-        "obl_negara": allocation.get("sbn", 0.0) + g * (allocation.get("pendapatan_tetap", 0.0) + 0.4 * allocation.get("campuran", 0.0)),
-        "obl_korporasi": (1 - g) * (allocation.get("pendapatan_tetap", 0.0) + 0.4 * allocation.get("campuran", 0.0)),
-        "pasar_uang": allocation.get("pasar_uang", 0.0),
-    }
+    buckets = _buckets(allocation, g)
+    no_bonds = buckets["obl_korporasi"] + buckets["obl_negara"] == 0
     return [{"name": name, "note": note, "loss": sum(share * shocks[b] for b, share in buckets.items()),
-             "gov_share_known": known or buckets["obl_korporasi"] + buckets["obl_negara"] == 0}
-            for name, note, shocks in SCENARIOS]
+             "gov_share_known": known or no_bonds} for name, note, shocks in scenarios(**scenario_args)]
+
+
+def scenario_range(allocation: dict[str, float], exposures=CORPORATE_EXPOSURES, **scenario_args) -> list[dict]:
+    """Scenario losses for each assumed corporate share of the bond funds (use when the holdings are not verified).
+
+    Returns one row per scenario: name, note and `losses` = {corporate exposure: loss}.
+    """
+    per_exposure = {e: scenario_losses(allocation, 1 - e, **scenario_args) for e in exposures}
+    return [{"name": row["name"], "note": row["note"], "losses": {e: per_exposure[e][i]["loss"] for e in exposures}}
+            for i, row in enumerate(per_exposure[exposures[0]])]
 
 
 CRISIS_GRID_SAHAM = (30, 40, 50)

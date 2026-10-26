@@ -72,12 +72,13 @@ def test_breakdown_weights_sum_to_one_and_name_a_source(catalog):
     assert (br["sumber"].str.len() > 0).all() and br["persentil"].between(0, 1).all()
 
 
-def test_breakdown_marks_unread_fact_sheet_as_neutral(catalog):
+def test_breakdown_scores_unread_fact_sheet_like_the_worst_readable_fund(catalog):
     ranked = recommend.rank_category(catalog, "pendapatan_tetap")
     unread = ranked[ranked["gov_top10_pct"].isna()].iloc[0]["name"]
     br = recommend.score_breakdown(ranked, "pendapatan_tetap", unread)
     row = br[br["kriteria"].str.contains("negara")].iloc[0]
-    assert row["persentil"] == 0.5 and "netral" in row["sumber"]
+    worst_known = recommend._percentiles(ranked, "gov_top10_pct")[ranked["gov_top10_pct"].notna()].min()
+    assert row["persentil"] == pytest.approx(worst_known, abs=0.01) and "terburuk" in row["sumber"]
 
 
 @pytest.mark.parametrize("category", ["pasar_uang", "pendapatan_tetap", "saham", "campuran"])

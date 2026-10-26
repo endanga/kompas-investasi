@@ -371,13 +371,16 @@ with tab_rec:
             gov = bond_pick.iloc[0].get("gov_top10_pct") if bond_pick is not None and len(bond_pick) else None
             gov = None if gov is None or pd.isna(gov) else gov / 100
             base, base_label = (plan.total_now + budget, "nilai portofolio setelah setoran bulan ini") if plan.has_portfolio                 else (budget * 12, "setoran 12 bulan")
-            st.markdown(ui.scenario_table(metrics.scenario_losses(held, gov), base, base_label, max_drop_pct / 100),
-                        unsafe_allow_html=True)
-            st.caption(
-                "Ini simulasi dengan asumsi, bukan batas kerugian maksimum dan bukan jaminan aman. "
-                + ("Obligasi dibagi negara/korporasi menurut porsi negara di 10 besar dana pendapatan tetap pilihan utama "
-                   f"({gov:.0%}); itu perkiraan kasar." if gov is not None else
-                   "Isi dana pendapatan tetap pilihan utama belum terverifikasi, jadi dianggap separuh korporasi."))
+            if gov is not None:
+                st.markdown(ui.scenario_table(metrics.scenario_losses(held, gov), base, base_label, max_drop_pct / 100),
+                            unsafe_allow_html=True)
+                st.caption(f"Porsi obligasi negara {gov:.0%} dihitung dari 10 besar isi dana pendapatan tetap pilihan utama, bukan "
+                           "seluruh dana. Ini simulasi dengan asumsi, bukan batas kerugian maksimum dan bukan jaminan aman.")
+            else:
+                st.markdown(ui.scenario_table(metrics.scenario_range(held), base, base_label, max_drop_pct / 100,
+                                              verified=False, exposures=metrics.CORPORATE_EXPOSURES), unsafe_allow_html=True)
+                st.caption("Ini simulasi dengan asumsi, bukan batas kerugian maksimum dan bukan jaminan aman. "
+                           "Cek fund fact sheet dana pendapatan tetap sebelum membeli.")
         st.caption("Tahun buruk dihitung dari data 1 tahun terakhir; krisis berat adalah asumsi. Dari fund fact sheet, sistem "
                    "hanya membaca porsi obligasi negara di 10 besar isi dana pendapatan tetap; rating penerbit dan durasi belum terbaca, jadi cek fund fact sheet.")
         if plan.has_portfolio:
@@ -423,7 +426,8 @@ with tab_rec:
 
     with st.expander("Bagaimana skor produk dihitung (per kriteria, bobot, dan sumber data)"):
         st.caption("Skor ini menilai KUALITAS PRODUK dibanding produk sejenis (persentil 0-1, makin tinggi makin baik). "
-                   "Risiko portofolio dihitung terpisah lewat uji penurunan dan skenario di atas.")
+                   "Risiko portofolio dihitung terpisah lewat uji penurunan dan skenario di atas. Peringkat yang stabil terhadap perubahan "
+                   "bobot hanya berarti urutannya tidak rapuh, bukan bukti bahwa produknya aman.")
         for cat, picks_df in rec.picks.items():
             top_name = picks_df.iloc[0]["name"]
             ranked_all = recommend.rank_category(catalog, cat, syariah_only)

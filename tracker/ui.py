@@ -362,15 +362,34 @@ def crisis_grid(grid: list[list[float]], saham: tuple, obligasi: tuple, limit: f
             f'<div class="it-grid-key">✓ dalam batas -{limit:.0%} Anda · ✕ melewati batas</div>')
 
 
-def scenario_table(rows: list[dict], base: float, base_label: str, limit: float) -> str:
-    """Hypothetical scenarios: loss in % and rupiah, with icon + words against the user's limit."""
-    body = ""
-    for r in rows:
-        ok = -r["loss"] <= limit
-        body += (f'<tr><th>{_e(r["name"])}<small>{_e(r["note"])}</small></th><td class="{"ok" if ok else "bad"}"><b>{_e(fmt_pct(r["loss"] * 100))}</b>'
-                 f'<br>{_e(fmt_idr_short(r["loss"] * base))} {"✓" if ok else "✕"}</td></tr>')
-    return (f'<table class="it-grid it-scen"><thead><tr><th>Skenario</th><th>Perkiraan rugi</th></tr></thead><tbody>{body}</tbody></table>'
-            f'<div class="it-grid-key">Rupiah dihitung dari {_e(base_label)} ({_e(fmt_idr_short(base))}). ✓ dalam batas -{limit:.0%} Anda · ✕ melewati batas</div>')
+def _loss_cell(loss: float, base: float, limit: float) -> str:
+    ok = -loss <= limit
+    return (f'<td class="{"ok" if ok else "bad"}"><b>{_e(fmt_pct(loss * 100))}</b>'
+            f'<br>{_e(fmt_idr_short(loss * base))} {"✓" if ok else "✕"}</td>')
+
+
+def scenario_table(rows: list[dict], base: float, base_label: str, limit: float, verified: bool = True,
+                   exposures: tuple = ()) -> str:
+    """Hypothetical scenarios: loss in % and rupiah, with icon + words against the user's limit.
+
+    `verified` True: one column, the bond mix comes from a read fact sheet. False: one column per assumed corporate share of
+    the bond funds (rows come from metrics.scenario_range) and a banner says the composition is NOT verified.
+    The size of every shock is an assumption in both cases; only the bond composition can be data.
+    """
+    if verified:
+        head, cells = "<th>Perkiraan rugi</th>", lambda r: _loss_cell(r["loss"], base, limit)
+        badge = ("Komposisi obligasi: <b>data fact sheet</b> (hanya 10 besar isi dana). "
+                 "Besar guncangan: <b>asumsi</b>.")
+    else:
+        head = "".join(f"<th>Jika {e:.0%} korporasi</th>" for e in exposures)
+        cells = lambda r: "".join(_loss_cell(r["losses"][e], base, limit) for e in exposures)  # noqa: E731
+        badge = ("<b>Belum terverifikasi</b>: isi dana pendapatan tetap tidak terbaca, jadi porsi korporasi tidak diketahui. "
+                 "Kolom di bawah adalah <b>simulasi dengan asumsi</b>, bukan data.")
+    body = "".join(f'<tr><th>{_e(r["name"])}<small>{_e(r["note"])}</small></th>{cells(r)}</tr>' for r in rows)
+    return (f'<div class="it-grid-key" style="margin:0 0 .5rem">{badge}</div>'
+            f'<table class="it-grid it-scen"><thead><tr><th>Skenario</th>{head}</tr></thead><tbody>{body}</tbody></table>'
+            f'<div class="it-grid-key">Rupiah dihitung dari {_e(base_label)} ({_e(fmt_idr_short(base))}). '
+            f'✓ dalam batas -{limit:.0%} Anda · ✕ melewati batas</div>')
 
 
 def legend_rows(allocation: dict[str, float], amounts: dict[str, float], mode: str) -> str:
