@@ -145,3 +145,14 @@
 /* two-row risk meter: the first bar needs less room because only the last one carries the "batas" label */
 .it-meter .track.nolabel { margin-bottom: 10px; }
 .it-meter-gap { height: 10px; }
+
+/* crisis scenario grid */
+.it-grid { width: 100%; border-collapse: collapse; font-size: .86rem; }
+.it-grid th, .it-grid td { padding: .4rem .5rem; text-align: center; border-bottom: 1px solid rgba(128,128,128,.25); }
+.it-grid thead th { font-weight: 600; opacity: .8; font-size: .78rem; }
+.it-grid tbody th { text-align: left; font-weight: 600; white-space: nowrap; }
+.it-grid td.ok { color: #0a7a0a; }
+.it-grid td.bad { color: #d03b3b; }
+@media (prefers-color-scheme: dark) { .it-grid td.ok { color: #0ca30c; } }
+.it-grid-key { font-size: .78rem; opacity: .7; margin-top: .4rem; }
+@media (max-width: 640px) { .it-grid { font-size: .78rem; } .it-grid th, .it-grid td { padding: .35rem .25rem; } }

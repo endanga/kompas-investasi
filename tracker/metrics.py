@@ -125,6 +125,16 @@ def crisis_shocks(saham_pct: float = 40.0, obligasi_pct: float = 8.0, pasar_uang
     return {"saham": saham, "pendapatan_tetap": obl, "sbn": obl, "pasar_uang": pu, "campuran": 0.6 * saham + 0.4 * obl}
 
 
+CRISIS_GRID_SAHAM = (30, 40, 50)
+CRISIS_GRID_OBLIGASI = (3, 8, 12)
+
+
+def crisis_grid(allocation: dict[str, float], saham=CRISIS_GRID_SAHAM, obligasi=CRISIS_GRID_OBLIGASI,
+                pasar_uang_pct: float = 0.0) -> list[list[float]]:
+    """Portfolio fall (negative fraction) for every stock x bond crisis pair: one row per stock fall, one column per bond fall."""
+    return [[stress_loss(allocation, crisis_shocks(s, o, pasar_uang_pct)) for o in obligasi] for s in saham]
+
+
 def stress_loss(allocation: dict[str, float], shocks: dict[str, float] | None = None) -> float:
     """Portfolio fall (negative fraction) if every category hits its shock at once."""
     shocks = DEFAULT_SHOCKS if shocks is None else shocks

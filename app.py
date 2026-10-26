@@ -360,6 +360,12 @@ with tab_rec:
             st.warning(f"Bila krisis berat terjadi, perkiraan turun bisa mencapai {ui.fmt_pct(-crisis_loss * 100)} "
                        f"dan melewati batas {max_drop_pct}% Anda. Pertimbangkan profil yang lebih konservatif, atau pastikan Anda "
                        "tidak menjual saat turun. Asumsi krisis bisa diubah di sidebar.", icon=":material/warning:")
+        held = plan.after if plan.has_portfolio else rec.allocation
+        with st.expander("Bagaimana kalau krisisnya lebih ringan atau lebih berat?"):
+            st.markdown(ui.crisis_grid(metrics.crisis_grid(held, pasar_uang_pct=crisis_pu), metrics.CRISIS_GRID_SAHAM,
+                                       metrics.CRISIS_GRID_OBLIGASI, max_drop_pct / 100), unsafe_allow_html=True)
+            st.caption("Angka-angka ini asumsi, bukan ramalan. Dipakai untuk melihat seberapa sensitif komposisi Anda terhadap "
+                       "dua hal: turunnya saham dan turunnya obligasi.")
         st.caption("Tahun buruk dihitung dari data 1 tahun terakhir; krisis berat adalah asumsi. Risiko obligasi yang sebenarnya "
                    "(durasi, kualitas penerbit, konsentrasi) belum dibaca sistem karena prospektus tidak dimuat; cek fund fact sheet.")
         if plan.has_portfolio:

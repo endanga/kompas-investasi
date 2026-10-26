@@ -329,6 +329,17 @@ def risk_meter(loss: float, limit: float, mode: str, crisis_loss: float | None =
     return f'<div class="it-meter">{first}<div class="it-meter-gap"></div>{second}</div>'
 
 
+def crisis_grid(grid: list[list[float]], saham: tuple, obligasi: tuple, limit: float) -> str:
+    """Stock-fall x bond-fall table of portfolio loss; each cell has an icon and words' worth of mark, never colour alone."""
+    head = "".join(f"<th>Obligasi -{o}%</th>" for o in obligasi)
+    body = ""
+    for s, row in zip(saham, grid):
+        cells = "".join(
+            f'<td class="{"ok" if -v <= limit else "bad"}"><b>{_e(fmt_pct(v * 100))}</b> {"✓" if -v <= limit else "✕"}</td>' for v in row)
+        body += f"<tr><th>Saham -{s}%</th>{cells}</tr>"
+    return (f'<table class="it-grid"><thead><tr><th></th>{head}</tr></thead><tbody>{body}</tbody></table>'
+            f'<div class="it-grid-key">✓ dalam batas -{limit:.0%} Anda · ✕ melewati batas</div>')
+
 
 def legend_rows(allocation: dict[str, float], amounts: dict[str, float], mode: str) -> str:
     rows = "".join(

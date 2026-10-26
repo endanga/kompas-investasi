@@ -59,3 +59,17 @@ def test_app_warns_when_the_crisis_scenario_breaks_the_limit():
     sliders["Obligasi turun (%)"].set_value(3)
     at = at.run()
     assert not at.exception and not any("krisis berat terjadi" in w.value for w in at.warning)
+
+
+def test_crisis_grid_has_one_cell_per_stock_bond_pair_and_matches_the_single_scenario():
+    grid = metrics.crisis_grid(PROFILE_4_5)
+    assert len(grid) == 3 and all(len(r) == 3 for r in grid)
+    assert grid[1][1] == pytest.approx(-0.128)                      # saham -40, obligasi -8 is the default crisis
+    assert grid[0][0] > grid[2][2]                                  # milder crisis loses less
+    assert all(grid[i][j] >= grid[i + 1][j] for i in range(2) for j in range(3))   # more stock fall never helps
+
+
+def test_crisis_grid_marks_each_cell_with_icon_against_the_limit():
+    out = ui.crisis_grid(metrics.crisis_grid(PROFILE_4_5), metrics.CRISIS_GRID_SAHAM, metrics.CRISIS_GRID_OBLIGASI, 0.10)
+    assert "Saham -30%" in out and "Obligasi -12%" in out and "✓" in out and "✕" in out
+    assert "dalam batas -10%" in out
