@@ -251,14 +251,22 @@ def data_status(as_of: str, age_days: int) -> str:
 GOV_LOW_PCT = 30      # below this share of government bonds in the top holdings, the card warns about credit risk
 
 
-def _holdings_line(p: dict) -> str:
-    """'Isi 10 besar: X% obligasi negara' for bond funds whose fact sheet was read; a warning when mostly corporate."""
+def _holdings_line(p: dict, category: str = "pendapatan_tetap") -> str:
+    """Bond funds: what the fact sheet's ten largest holdings show, or an explicit 'not verified' when it could not be read."""
+    if category != "pendapatan_tetap":
+        return ""
+    style = 'font-size:.8rem;opacity:.85;margin-bottom:8px'
     share = p.get("gov_top10_pct")
     if share is None or pd.isna(share):
-        return ""
+        return (f'<div style="{style}"><b>Komposisi belum terverifikasi</b>: fact sheet belum terbaca, jadi risiko kredit '
+                'dana ini tidak diketahui. Cek sendiri di fund fact sheet.</div>')
+    detail = ""
+    top1, covered = p.get("top1_pct"), p.get("top10_sum_pct")
+    if top1 is not None and pd.notna(top1) and covered is not None and pd.notna(covered):
+        detail = f' · terbesar {top1:.0f}% · 10 besar = {covered:.0f}% dana'
     warn = (' · <b>mayoritas obligasi korporasi: risiko gagal bayar penerbit tidak terlihat di grafik harga</b>'
             if share < GOV_LOW_PCT else "")
-    return f'<div style="font-size:.8rem;opacity:.85;margin-bottom:8px">Isi 10 besar: {share:.0f}% obligasi negara{warn}</div>'
+    return f'<div style="{style}">Dari 10 besar isinya: {share:.0f}% obligasi negara{detail}{warn}</div>'
 
 
 def product_card(category: str, share: float, monthly: float, picks: list[dict], mode: str) -> str:
@@ -288,7 +296,7 @@ def product_card(category: str, share: float, monthly: float, picks: list[dict],
         f'<div class="it-stat"><b>{_delta(top.get("return_3y_pct"))}</b><span>return 3 th</span></div>'
         f'<div class="it-stat"><b>{fmt_pct(abs(dd) if pd.notna(dd) else None)}</b><span>turun terdalam</span></div>'
         f'</div><div style="font-size:.8rem;opacity:.7;margin-bottom:8px">Dana kelolaan {_e(fmt_idr_short(top["aum_idr"]))}</div>'
-        f'{_holdings_line(top)}{link}{alts}</div>'
+        f'{_holdings_line(top, category)}{link}{alts}</div>'
     )
 
 
@@ -352,6 +360,17 @@ def crisis_grid(grid: list[list[float]], saham: tuple, obligasi: tuple, limit: f
         body += f"<tr><th>Saham -{s}%</th>{cells}</tr>"
     return (f'<table class="it-grid"><thead><tr><th></th>{head}</tr></thead><tbody>{body}</tbody></table>'
             f'<div class="it-grid-key">✓ dalam batas -{limit:.0%} Anda · ✕ melewati batas</div>')
+
+
+def scenario_table(rows: list[dict], base: float, base_label: str, limit: float) -> str:
+    """Hypothetical scenarios: loss in % and rupiah, with icon + words against the user's limit."""
+    body = ""
+    for r in rows:
+        ok = -r["loss"] <= limit
+        body += (f'<tr><th>{_e(r["name"])}<small>{_e(r["note"])}</small></th><td class="{"ok" if ok else "bad"}"><b>{_e(fmt_pct(r["loss"] * 100))}</b>'
+                 f'<br>{_e(fmt_idr_short(r["loss"] * base))} {"✓" if ok else "✕"}</td></tr>')
+    return (f'<table class="it-grid it-scen"><thead><tr><th>Skenario</th><th>Perkiraan rugi</th></tr></thead><tbody>{body}</tbody></table>'
+            f'<div class="it-grid-key">Rupiah dihitung dari {_e(base_label)} ({_e(fmt_idr_short(base))}). ✓ dalam batas -{limit:.0%} Anda · ✕ melewati batas</div>')
 
 
 def legend_rows(allocation: dict[str, float], amounts: dict[str, float], mode: str) -> str:

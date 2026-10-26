@@ -76,12 +76,14 @@ def max_drawdown(values: pd.Series) -> float:
 
 
 def future_value_dca(monthly: float, annual_rate: float, years: float, initial: float = 0.0) -> float:
-    """Projected value of an initial sum plus monthly deposits (end of month), compounded monthly.
+    """Projected value of an initial sum plus monthly deposits (end of month).
 
-    This is a what-if on an *assumed* rate, not a forecast.
+    `annual_rate` is an effective yearly return (what a fund's year-on-year return means), so the monthly rate is
+    (1 + annual) ** (1/12) - 1 and twelve months compound back to exactly `annual_rate`. Fund returns are already net of
+    the fund's own fees. This is a what-if on an *assumed* rate, not a forecast.
     """
     n = int(round(years * 12))
-    r = annual_rate / 12
+    r = (1 + annual_rate) ** (1 / 12) - 1
     if r == 0:
         return initial + monthly * n
     return initial * (1 + r) ** n + monthly * (((1 + r) ** n - 1) / r)
@@ -123,6 +125,43 @@ def crisis_shocks(saham_pct: float = 40.0, obligasi_pct: float = 8.0, pasar_uang
     """
     saham, obl, pu = -saham_pct / 100, -obligasi_pct / 100, -pasar_uang_pct / 100
     return {"saham": saham, "pendapatan_tetap": obl, "sbn": obl, "pasar_uang": pu, "campuran": 0.6 * saham + 0.4 * obl}
+
+
+# Separate hypothetical scenarios (ASSUMPTIONS, not measured history). Each gives a price shock per holding type.
+# Bonds are split into government and corporate because they do not fail the same way.
+SCENARIOS = (
+    ("Saham jatuh", "Pasar saham turun 40%, obligasi korporasi ikut turun sedikit.",
+     {"saham": -0.40, "obl_negara": 0.0, "obl_korporasi": -0.03, "pasar_uang": 0.0}),
+    ("Yield obligasi negara naik 2 poin", "Suku bunga naik; harga obligasi turun sebesar durasi x 2% (durasi diasumsikan ~4 tahun untuk "
+     "obligasi negara dan ~3 tahun untuk korporasi).",
+     {"saham": -0.05, "obl_negara": -0.08, "obl_korporasi": -0.06, "pasar_uang": 0.0}),
+    ("Spread kredit melebar", "Investor menuntut imbal lebih untuk risiko korporasi; obligasi negara relatif aman.",
+     {"saham": -0.10, "obl_negara": 0.0, "obl_korporasi": -0.07, "pasar_uang": 0.0}),
+    ("Gagal bayar penerbit korporasi besar", "Satu penerbit besar (sekitar 10% dari porsi korporasi) gagal bayar dan nilainya nol.",
+     {"saham": 0.0, "obl_negara": 0.0, "obl_korporasi": -0.10, "pasar_uang": 0.0}),
+    ("Tekanan likuiditas", "Banyak investor menjual bersamaan; aset dijual dengan diskon.",
+     {"saham": -0.10, "obl_negara": -0.03, "obl_korporasi": -0.08, "pasar_uang": -0.005}),
+)
+UNKNOWN_GOV_SHARE = 0.5   # bond fund whose holdings could not be read: assume half corporate, never "all safe"
+
+
+def scenario_losses(allocation: dict[str, float], gov_share: float | None = None) -> list[dict]:
+    """Portfolio fall for each scenario in SCENARIOS (negative fractions).
+
+    `gov_share` (0-1) is the share of bond funds held in government bonds; None means unknown and is flagged,
+    not treated as safe. Mixed funds count as 60% stocks, 40% bonds; SBN counts as government bonds.
+    """
+    known = gov_share is not None
+    g = UNKNOWN_GOV_SHARE if gov_share is None else min(max(gov_share, 0.0), 1.0)
+    buckets = {
+        "saham": allocation.get("saham", 0.0) + 0.6 * allocation.get("campuran", 0.0),
+        "obl_negara": allocation.get("sbn", 0.0) + g * (allocation.get("pendapatan_tetap", 0.0) + 0.4 * allocation.get("campuran", 0.0)),
+        "obl_korporasi": (1 - g) * (allocation.get("pendapatan_tetap", 0.0) + 0.4 * allocation.get("campuran", 0.0)),
+        "pasar_uang": allocation.get("pasar_uang", 0.0),
+    }
+    return [{"name": name, "note": note, "loss": sum(share * shocks[b] for b, share in buckets.items()),
+             "gov_share_known": known or buckets["obl_korporasi"] + buckets["obl_negara"] == 0}
+            for name, note, shocks in SCENARIOS]
 
 
 CRISIS_GRID_SAHAM = (30, 40, 50)

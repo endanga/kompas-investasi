@@ -100,8 +100,22 @@ def pdf_text(pdf: bytes) -> str:
         return "\n".join(page.get_text() for page in doc)
 
 
+def summarize(text: str) -> dict:
+    """What a fact sheet's text says about holdings. Fields that could not be read are None, never 0.
+
+    gov_top10_pct: share of the ten largest holdings that is government debt (not of the whole fund).
+    top1_pct: weight of the single largest holding (issuer concentration).
+    top10_sum_pct: how much of the fund the readable top holdings cover; the rest is not seen.
+    """
+    holdings = top_holdings(text)
+    share, n = government_share(text)
+    readable = share is not None
+    return {"gov_top10_pct": share, "top10_n": n,
+            "top1_pct": max(p for _, p in holdings) if readable else None,
+            "top10_sum_pct": round(sum(p for _, p in holdings), 1) if readable else None}
+
+
 def read_fund(code: str) -> dict:
-    """Fact sheet facts for one fund: {'gov_top10_pct', 'top10_n', 'factsheet_date'}."""
+    """Fact sheet facts for one fund, plus the date of the fact sheet they came from."""
     pdf, date = latest_pdf(code)
-    share, n = government_share(pdf_text(pdf))
-    return {"gov_top10_pct": share, "top10_n": n, "factsheet_date": date}
+    return {**summarize(pdf_text(pdf)), "factsheet_date": date}

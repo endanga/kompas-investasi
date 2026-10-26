@@ -156,3 +156,5 @@
 @media (prefers-color-scheme: dark) { .it-grid td.ok { color: #0ca30c; } }
 .it-grid-key { font-size: .78rem; opacity: .7; margin-top: .4rem; }
 @media (max-width: 640px) { .it-grid { font-size: .78rem; } .it-grid th, .it-grid td { padding: .35rem .25rem; } }
+.it-scen tbody th small { display: block; font-weight: 400; opacity: .7; font-size: .76rem; margin-top: 2px; white-space: normal; }
+.it-scen td { white-space: nowrap; }

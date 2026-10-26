@@ -75,6 +75,36 @@ def _ann(total_pct: float, years: float) -> float:
     return np.nan if r is None else r * 100
 
 
+SOURCES = {
+    "return_3y_ann": "tabel produk Bibit", "return_1y_pct": "tabel produk Bibit", "return_3y_pct": "tabel produk Bibit",
+    "drawdown_1y_pct": "tabel produk Bibit (1 tahun)", "aum_idr": "tabel produk Bibit",
+    "gov_top10_pct": "fund fact sheet (10 besar)", "index_like": "nama produk (tebakan)",
+}
+
+
+def _weights(df: pd.DataFrame, category: str) -> dict[str, float]:
+    """The criteria actually used: an optional one with no data at all is left out instead of counted as zero."""
+    return {c: w for c, w in WEIGHTS.get(category, WEIGHTS["campuran"]).items() if df[c].notna().any() or c not in OPTIONAL}
+
+
+def score_breakdown(ranked: pd.DataFrame, category: str, name: str) -> pd.DataFrame:
+    """Per-criterion view of one fund's quality score: value, percentile inside the category, weight and source.
+
+    This is the PRODUCT quality score. How risky the whole portfolio is lives elsewhere (stress tests).
+    """
+    weights = _weights(ranked, category)
+    total_w = sum(weights.values())
+    row = ranked[ranked["name"] == name].iloc[0]
+    rows = []
+    for col, w in weights.items():
+        known = pd.notna(row[col])
+        pct = ranked[col].rank(pct=True, na_option="bottom").loc[row.name] if known or col not in OPTIONAL else 0.5
+        rows.append({"kriteria": CRITERIA_LABEL.get(col, col), "nilai": row[col] if known else None,
+                     "persentil": round(float(pct), 2), "bobot": round(w / total_w, 3),
+                     "sumber": SOURCES.get(col, "-") if known else SOURCES.get(col, "-") + " (tidak terbaca, dinilai netral)"})
+    return pd.DataFrame(rows)
+
+
 def rank_category(products: pd.DataFrame, category: str, syariah_only: bool = False,
                   min_aum: float = MIN_AUM_IDR) -> pd.DataFrame:
     """Eligible funds of one category, best first, with a score and a plain-language reason."""
@@ -85,7 +115,7 @@ def rank_category(products: pd.DataFrame, category: str, syariah_only: bool = Fa
     if "gov_top10_pct" not in df:                      # a products file from before fact sheets were read
         df["gov_top10_pct"] = np.nan
     df["index_like"] = df["name"].str.contains(INDEX_LIKE).astype(float)
-    weights = {c: w for c, w in WEIGHTS.get(category, WEIGHTS["campuran"]).items() if df[c].notna().any() or c not in OPTIONAL}
+    weights = _weights(df, category)
     total_w = sum(weights.values())
     score = pd.Series(0.0, index=df.index)
     for col, w in weights.items():

@@ -28,9 +28,22 @@ def test_future_value_dca_zero_rate():
     assert metrics.future_value_dca(500_000, 0.0, 1) == 6_000_000
 
 
-def test_future_value_dca_known_value():
-    # 1000/month, 12% p.a. (1% monthly), 12 months -> 1000 * ((1.01^12 - 1) / 0.01) = 12682.50
-    assert metrics.future_value_dca(1000, 0.12, 1) == pytest.approx(12682.50, abs=0.01)
+def test_future_value_dca_matches_a_month_by_month_loop():
+    # 1000/month + 5000 start, 12% effective yearly, 3 years: simulate every month by hand
+    r = 1.12 ** (1 / 12) - 1
+    value = 5000.0
+    for _ in range(36):
+        value = value * (1 + r) + 1000
+    assert metrics.future_value_dca(1000, 0.12, 3, initial=5000) == pytest.approx(value, rel=1e-9)
+
+
+def test_twelve_months_compound_to_exactly_the_yearly_rate():
+    assert metrics.future_value_dca(0, 0.12, 1, initial=1000) == pytest.approx(1120.0)      # not 1126.83 (nominal 1%/month)
+
+
+def test_future_value_dca_is_monotonic_in_rate_and_years():
+    assert metrics.future_value_dca(1e6, 0.08, 10) > metrics.future_value_dca(1e6, 0.04, 10)
+    assert metrics.future_value_dca(1e6, 0.06, 20) > metrics.future_value_dca(1e6, 0.06, 10)
 
 
 def test_total_invested_and_allocation():
