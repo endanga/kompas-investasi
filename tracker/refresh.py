@@ -48,7 +48,7 @@ UNITS = {"T": 1e12, "B": 1e9, "M": 1e6}
 FUND_COLUMNS = ["product_id", "name", "jenis_bibit", "category", "syariah_dari_nama",
                 "return_1d_pct", "return_1m_pct", "return_3m_pct", "return_ytd_pct", "return_1y_pct",
                 "return_3y_pct", "return_5y_pct", "return_10y_pct", "last_nav", "drawdown_1y_pct",
-                "aum_idr", "url", "as_of", "gov_top10_pct", "top10_n", "top1_pct", "top10_sum_pct", "factsheet_date"]
+                "aum_idr", "url", "as_of", "gov_top10_pct", "top10_n", "top1_pct", "top10_sum_pct", "unknown_top10_pct", "factsheet_date", "factsheet_url"]
 
 _JS_FUND_ROWS = """() => {
   const t = [...document.querySelectorAll('table')].find(x => x.innerText.includes('Last NAV'));
@@ -391,7 +391,8 @@ def format_markdown(output: str) -> str:
     return "\n".join([head if head != first else f"**{first}**", *[f"- {code_files(ln)}" for ln in rest]])
 
 
-FACTSHEET_COLUMNS = ["gov_top10_pct", "top10_n", "top1_pct", "top10_sum_pct", "factsheet_date"]
+FACTSHEET_COLUMNS = ["gov_top10_pct", "top10_n", "top1_pct", "top10_sum_pct", "unknown_top10_pct", "factsheet_date",
+                     "factsheet_url"]
 
 
 def add_factsheets(funds: pd.DataFrame, old: pd.DataFrame | None, log=print) -> tuple[pd.DataFrame, list[str]]:

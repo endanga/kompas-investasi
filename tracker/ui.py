@@ -260,13 +260,27 @@ def _holdings_line(p: dict, category: str = "pendapatan_tetap") -> str:
     if share is None or pd.isna(share):
         return (f'<div style="{style}"><b>Komposisi belum terverifikasi</b>: fact sheet belum terbaca, jadi risiko kredit '
                 'dana ini tidak diketahui. Cek sendiri di fund fact sheet.</div>')
+    def known(key):
+        v = p.get(key)
+        return v if v is not None and pd.notna(v) else None
+
+    unknown = known("unknown_top10_pct") or 0.0
+    corporate = max(100.0 - share - unknown, 0.0)
     detail = ""
-    top1, covered = p.get("top1_pct"), p.get("top10_sum_pct")
-    if top1 is not None and pd.notna(top1) and covered is not None and pd.notna(covered):
-        detail = f' · terbesar {top1:.0f}% · 10 besar = {covered:.0f}% dana'
-    warn = (' · <b>mayoritas obligasi korporasi: risiko gagal bayar penerbit tidak terlihat di grafik harga</b>'
-            if share < GOV_LOW_PCT else "")
-    return f'<div style="{style}">Dari 10 besar isinya: {share:.0f}% obligasi negara{detail}{warn}</div>'
+    if known("top10_sum_pct") is not None:
+        detail += f' · 10 besar = {known("top10_sum_pct"):.0f}% dana'
+    if known("top1_pct") is not None:
+        detail += f' · satu efek terbesar {known("top1_pct"):.0f}%'
+    if unknown >= 1:
+        detail += f' · {unknown:.0f}% belum teridentifikasi jenisnya'
+    if corporate >= 50:
+        warn = ' · <b>mayoritas obligasi korporasi: risiko gagal bayar penerbit tidak terlihat di grafik harga</b>'
+    elif share < GOV_LOW_PCT and unknown >= 30:
+        warn = ' · <b>jenis banyak efek tidak teridentifikasi: risiko kredit belum bisa dinilai</b>'
+    else:
+        warn = ""
+    when = f' · fact sheet {_e(str(known("factsheet_date")))}' if known("factsheet_date") else ""
+    return f'<div style="{style}">Dari 10 besar isinya: {share:.0f}% obligasi negara{detail}{warn}{when}</div>'
 
 
 def product_card(category: str, share: float, monthly: float, picks: list[dict], mode: str) -> str:
