@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from datetime import date
 
+import math
+
 import numpy as np
 import pandas as pd
 
@@ -165,10 +167,14 @@ def scenarios(dur_negara: float = DUR_NEGARA, dur_korporasi: float = DUR_KORPORA
 SCENARIOS = scenarios()
 
 
+KNOWN_CATEGORIES = ("pasar_uang", "pendapatan_tetap", "campuran", "saham", "sbn")
+
+
 def _buckets(allocation: dict[str, float], gov_share: float) -> dict[str, float]:
     bond = allocation.get("pendapatan_tetap", 0.0) + 0.4 * allocation.get("campuran", 0.0)
+    other = sum(v for c, v in allocation.items() if c not in KNOWN_CATEGORIES)     # unknown kinds count as stocks, never as safe
     return {
-        "saham": allocation.get("saham", 0.0) + 0.6 * allocation.get("campuran", 0.0),
+        "saham": allocation.get("saham", 0.0) + 0.6 * allocation.get("campuran", 0.0) + other,
         "obl_negara": allocation.get("sbn", 0.0) + gov_share * bond,
         "obl_korporasi": (1 - gov_share) * bond,
         "pasar_uang": allocation.get("pasar_uang", 0.0),
@@ -210,13 +216,18 @@ def crisis_grid(allocation: dict[str, float], saham=CRISIS_GRID_SAHAM, obligasi=
     return [[stress_loss(allocation, crisis_shocks(s, o, pasar_uang_pct)) for o in obligasi] for s in saham]
 
 
-def stress_loss(allocation: dict[str, float], shocks: dict[str, float] | None = None) -> float:
-    """Portfolio fall (negative fraction) if every category hits its shock at once."""
+def stress_loss(allocation: dict[str, float], shocks: dict[str, float] | None = None, unknown_shock: float = 0.0) -> float:
+    """Portfolio fall (negative fraction) if every category hits its shock at once.
+
+    A category without a shock gets `unknown_shock`. The default 0.0 is the historical behaviour; the strict checks pass
+    the worst known shock instead, because a category the table does not know must not count as risk-free.
+    """
     shocks = DEFAULT_SHOCKS if shocks is None else shocks
-    return float(sum(share * shocks.get(cat, 0.0) for cat, share in allocation.items()))
+    return float(sum(share * shocks.get(cat, unknown_shock) for cat, share in allocation.items()))
 
 
 MARGIN_THIN = 0.01   # less than one percentage point of room counts as thin: the estimate itself is not that precise
+MARGIN_TOL = 1e-9    # float noise: 0.12 - 0.11 is 0.00999999..., which is exactly one point of room, not "thin"
 
 
 def margin_to_limit(loss: float, limit: float, base: float) -> dict:
@@ -225,8 +236,11 @@ def margin_to_limit(loss: float, limit: float, base: float) -> dict:
     `loss` is a negative fraction, `limit` a positive fraction. A positive margin means the estimate sits inside the limit.
     The estimate is a simulation, so even a comfortable margin is not a cap on real losses.
     """
+    if not (math.isfinite(loss) and math.isfinite(limit) and math.isfinite(base)):
+        return {"points": float("nan"), "rupiah": float("nan"), "thin": False, "crossed": False, "invalid": True}
     margin = limit + loss
-    return {"points": margin * 100, "rupiah": margin * base, "thin": 0 <= margin < MARGIN_THIN, "crossed": margin < 0}
+    return {"points": margin * 100, "rupiah": margin * base, "thin": -MARGIN_TOL <= margin < MARGIN_THIN - MARGIN_TOL,
+            "crossed": margin < -MARGIN_TOL, "invalid": False}
 
 
 def stress_checks(allocation: dict[str, float], bad_year_shocks: dict[str, float], crisis: dict[str, float],
@@ -242,14 +256,17 @@ def stress_checks(allocation: dict[str, float], bad_year_shocks: dict[str, float
     MARGIN_THIN of room; a thinner margin is reported as thin and does not count as meeting the limit.
     """
     worst = min(scenario_losses(allocation, 0.0 if gov_share is None else gov_share, **scenario_args), key=lambda s: s["loss"])
-    rows = [("Tahun buruk dari data 1 tahun", "historis", stress_loss(allocation, bad_year_shocks)),
-            ("Krisis berat (asumsi Anda)", "hipotetis", stress_loss(allocation, crisis)),
+    finite = [v for v in bad_year_shocks.values() if math.isfinite(v)]
+    harsh = min(finite) if finite else -1.0                          # a category without a shock takes the worst known one
+    rows = [("Tahun buruk dari data 1 tahun", "historis", stress_loss(allocation, bad_year_shocks, harsh)),
+            ("Krisis berat (asumsi Anda)", "hipotetis", stress_loss(allocation, crisis, min(crisis.values(), default=-1.0))),
             (f"Skenario terpisah terburuk: {worst['name']}", "hipotetis", worst["loss"])]
     out = []
     for name, kind, loss in rows:
         m = margin_to_limit(loss, limit, 1.0)
         out.append({"name": name, "kind": kind, "loss": loss, "margin_points": m["points"], "thin": m["thin"],
-                    "crossed": m["crossed"], "passed": not m["thin"] and not m["crossed"]})
+                    "crossed": m["crossed"], "invalid": m["invalid"],
+                    "passed": not m["invalid"] and not m["thin"] and not m["crossed"]})   # a calculation that failed never passes
     return out
 
 

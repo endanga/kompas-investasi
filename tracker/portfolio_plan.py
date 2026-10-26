@@ -12,6 +12,7 @@ from dataclasses import dataclass, field, replace
 
 import pandas as pd
 
+from . import metrics
 from .recommend import Recommendation
 
 MAX_PRODUCT_SHARE = 0.50   # same threshold as rules.CONCENTRATION_THRESHOLD
@@ -155,7 +156,17 @@ def apply(rec: Recommendation, holdings: pd.DataFrame, budget: float, max_drop: 
     if held_off_target:
         notes.append("Portofolio Anda punya jenis di luar komposisi profil ini (" + ", ".join(held_off_target)
                      + "). Tidak disarankan dijual; tidak ditambah lagi.")
-    within = rec.within_limit if max_drop is None else -plan.stress_after <= max_drop
+    checks = rec.checks
+    if max_drop is None:
+        within = rec.within_limit
+    elif rec.strict:
+        # The same three checks, on what will actually be held (the whole portfolio after this month's deposit).
+        total_after = sum(plan.after.values())
+        after_mix = {c: v / total_after for c, v in plan.after.items()} if total_after > 0 else {}
+        checks = metrics.stress_checks(after_mix, rec.shocks, metrics.crisis_shocks() if rec.crisis is None else rec.crisis, rec.gov_share, max_drop)
+        within = all(c["passed"] for c in checks)
+    else:
+        within = -plan.stress_after <= max_drop
     if max_drop is not None and not within and rec.within_limit:
         notes.append(
             f"Dengan isi portofolio sekarang, perkiraan turun total {-plan.stress_after:.1%}".replace(".", ",") + f" masih di atas batas "
@@ -165,7 +176,7 @@ def apply(rec: Recommendation, holdings: pd.DataFrame, budget: float, max_drop: 
     amounts = dict(plan.contribution)
     shares = {c: a / budget for c, a in amounts.items()}
     return replace(rec, allocation=shares, picks=picks, monthly_amounts=amounts, stress_loss=plan.stress_after,
-                   within_limit=within, notes=notes, target_allocation=target, plan=plan)
+                   within_limit=within, notes=notes, target_allocation=target, plan=plan, checks=checks)
 
 
 def snapshot_block(plan: Plan) -> dict | None:

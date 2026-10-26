@@ -162,6 +162,8 @@ class Recommendation:
     plan: object | None = None
     checks: list = field(default_factory=list)      # metrics.stress_checks of the chosen level (strict rule)
     strict: bool = False
+    crisis: dict = field(default_factory=dict)       # the crisis assumption the checks used
+    gov_share: float | None = None                   # least government share among the bond picks (None = no bond picks)
 
 
 STALE_DAYS = 30   # product data older than this is called out: prices and fact sheets may have moved
@@ -186,6 +188,13 @@ def quality_notes(products: pd.DataFrame, rankings: dict[str, pd.DataFrame], tod
     bonds = rankings.get("pendapatan_tetap")
     if bonds is not None and not bonds.empty:
         top = bonds.head(TOP_N)
+        if "factsheet_date" in top and "as_of" in products and products["as_of"].notna().any():
+            ref = pd.to_datetime(products["as_of"].iloc[0])
+            dates = pd.to_datetime(top["factsheet_date"], errors="coerce")
+            old = [n for n, d in zip(top["name"], dates) if pd.notna(d) and (ref - d).days > FACTSHEET_STALE_DAYS]
+            if old:
+                notes.append(f"Fund fact sheet berumur lebih dari {FACTSHEET_STALE_DAYS} hari untuk: " + ", ".join(old)
+                             + ". Isi dana mungkin sudah berubah.")
         gov = top["gov_top10_pct"] if "gov_top10_pct" in top else pd.Series(np.nan, index=top.index)
         unread = [n for n, g in zip(top["name"], gov) if pd.isna(g)]
         if unread:
@@ -194,6 +203,21 @@ def quality_notes(products: pd.DataFrame, rankings: dict[str, pd.DataFrame], tod
         elif (gov < 30).any():
             notes.append("Sebagian dana obligasi pilihan mayoritas berisi obligasi korporasi: harganya bisa tampak stabil, "
                          "tetapi risiko gagal bayar penerbit tidak terlihat di grafik harga.")
+    return notes
+
+
+FACTSHEET_STALE_DAYS = 60
+
+
+def level_notes(level: float, allocation: dict[str, float]) -> list[str]:
+    """What the user must know about the level itself: where its mix comes from, and what is never verified."""
+    notes = []
+    if level not in VERIFIED_LEVELS:
+        notes.append(f"Komposisi profil risiko {level:g} berasal dari catatan Anda dan belum dicocokkan dengan aplikasi Bibit. "
+                     "Cocokkan pembagiannya di aplikasi Bibit sebelum membeli.")
+    if allocation.get("pendapatan_tetap", 0) > 0:
+        notes.append("Rating kredit dan durasi dana obligasi tidak tersedia di data ini dan tidak pernah diverifikasi; "
+                     "stress test memakai asumsi untuk keduanya.")
     return notes
 
 
@@ -215,7 +239,7 @@ def recommend(products: pd.DataFrame, profiles: dict[str, dict[str, float]], max
     under 1 percentage point is not enough. strict=False keeps the older rule (bad-year estimate only, no margin).
     """
     rankings, shocks = _rank_and_shock(products, syariah_only)
-    crisis = crisis or metrics.crisis_shocks()
+    crisis = metrics.crisis_shocks() if crisis is None else crisis
     gov = conservative_gov_share(rankings)
 
     cap = horizon_level_cap(horizon_years)
@@ -246,9 +270,9 @@ def recommend(products: pd.DataFrame, profiles: dict[str, dict[str, float]], max
     checks = metrics.stress_checks(profiles[key], shocks, crisis, gov, max_drop) if strict else []
     if strict and skipped and within:
         notes.append(_skipped_note(*skipped[-1]))       # the level just above the one chosen
-    notes += quality_notes(products, rankings, today)
+    notes += quality_notes(products, rankings, today) + level_notes(lv, profiles[key])
     rec = _assemble(rankings, shocks, profiles[key], key, lv, monthly_budget, within, notes)
-    rec.checks, rec.strict = checks, strict
+    rec.checks, rec.strict, rec.crisis, rec.gov_share = checks, strict, crisis, gov
     return rec
 
 
@@ -298,12 +322,13 @@ def for_level(products: pd.DataFrame, profiles: dict[str, dict[str, float]], pro
     lv = level_of(profile_key)
     rec = _assemble(rankings, shocks, profiles[profile_key], profile_key, lv if lv is not None else 0.0,
                     monthly_budget, True, [])
+    rec.crisis = metrics.crisis_shocks() if crisis is None else crisis
+    rec.gov_share = conservative_gov_share(rankings)
     if max_drop is not None:
-        rec.checks = metrics.stress_checks(profiles[profile_key], shocks, crisis or metrics.crisis_shocks(),
-                                           conservative_gov_share(rankings), max_drop)
+        rec.checks = metrics.stress_checks(profiles[profile_key], shocks, rec.crisis, rec.gov_share, max_drop)
         rec.within_limit = all(c["passed"] for c in rec.checks)
         rec.strict = True
-    rec.notes += quality_notes(products, rankings)
+    rec.notes += quality_notes(products, rankings) + level_notes(rec.level, rec.allocation)
     return rec
 
 

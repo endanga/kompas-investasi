@@ -14,10 +14,11 @@ from pathlib import Path
 import pandas as pd
 
 from . import storage
+from .recommend import VERIFIED_LEVELS
 from .products import ROBO_FUNDS
 
 ROBO_FILE = Path(__file__).parent.parent / "data" / "robo_picks.json"
-CONFIRMED_LEVELS = (4.5, 5.0)  # levels whose funds were read from the user's own robo screenshots
+CONFIRMED_LEVELS = VERIFIED_LEVELS  # levels whose funds were read from the user's own robo screenshots
 SKIP = "(tidak ada / lewati)"
 
 

@@ -424,7 +424,8 @@ with tab_rec:
             st.caption(f"Dihitung untuk seluruh portofolio setelah setoran bulan ini (nilai sekarang {ui.fmt_idr_short(plan.total_now)}). "
                        f"Sebelum setoran: {ui.fmt_pct(plan.stress_now * 100)}.")
         if is_auto and rec.within_limit:
-            st.caption(f"Ini {RISK_TITLE.lower()} tertinggi yang masih muat dalam batas {max_drop_pct}% dan tujuan {horizon:g} tahun.")
+            st.caption(f"Ini {RISK_TITLE.lower()} tertinggi yang lolos semua pemeriksaan simulasi terhadap batas {max_drop_pct}% dan tujuan "
+                       f"{horizon:g} tahun. Lolos simulasi bukan jaminan kerugian tidak akan melewati {max_drop_pct}%.")
         if rec.level in (4.5, 5.0):
             st.caption("Komposisi sudah dicocokkan dengan screenshot robo Bibit.")
         else:

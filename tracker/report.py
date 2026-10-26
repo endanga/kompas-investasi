@@ -390,7 +390,8 @@ def _decision_summary(snap: dict) -> list:
         items.append(_p(f"<b>{_e(fmt_idr(amount))}</b> per bulan ({snap['allocation'][cat]:.0%}) untuk "
                         f"<b>{_e(picks[0]['name'])}</b> ({_e(_cat_name(cat).lower())}).", "bullet", bulletText="-"))
     verdict = ("Perkiraan penurunan di tahun buruk" f" {fmt_pct(snap['stress_loss'] * 100)} berada "
-               + ("dalam" if snap["within_limit"] else "<b>di luar</b>") + f" batas Anda (-{inputs['max_drop_pct']}%).")
+               + ("dalam" if snap["within_limit"] else "<b>di luar</b>") + f" batas Anda (-{inputs['max_drop_pct']}%) menurut simulasi; "
+               "kerugian nyata bisa lebih besar dan batas ini bukan jaminan.")
     items.append(_p(verdict, "bullet", bulletText="-"))
     return items
 
