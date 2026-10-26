@@ -216,6 +216,19 @@ def stress_loss(allocation: dict[str, float], shocks: dict[str, float] | None = 
     return float(sum(share * shocks.get(cat, 0.0) for cat, share in allocation.items()))
 
 
+MARGIN_THIN = 0.01   # less than one percentage point of room counts as thin: the estimate itself is not that precise
+
+
+def margin_to_limit(loss: float, limit: float, base: float) -> dict:
+    """Room left under the user's loss limit: percentage points, rupiah on `base`, and whether it is thin or already crossed.
+
+    `loss` is a negative fraction, `limit` a positive fraction. A positive margin means the estimate sits inside the limit.
+    The estimate is a simulation, so even a comfortable margin is not a cap on real losses.
+    """
+    margin = limit + loss
+    return {"points": margin * 100, "rupiah": margin * base, "thin": 0 <= margin < MARGIN_THIN, "crossed": margin < 0}
+
+
 def months_with_buys(transactions: pd.DataFrame, as_of: date, window: int = 6) -> int:
     """How many of the last `window` calendar months contain at least one BUY."""
     buys = transactions[transactions["type"] == "BUY"]

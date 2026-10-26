@@ -15,6 +15,8 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+from . import metrics
+
 # ----------------------------------------------------------------------------- colours
 # Fixed per entity. Slots 1-3 (blue, orange, aqua) of the reference categorical palette, validated all-pairs.
 CATEGORY_COLORS = {
@@ -248,7 +250,29 @@ def data_status(as_of: str, age_days: int) -> str:
             f'<span>Snapshot per {_e(as_of)} ({when})</span></div>')
 
 
-GOV_LOW_PCT = 30      # below this share of government bonds in the top holdings, the card warns about credit risk
+def margin_note(loss: float, limit: float, base: float, base_label: str, level: float,
+                lower: tuple[float, float] | None = None) -> tuple[str, bool]:
+    """(text, is_warning) describing the room under the loss limit, in points and rupiah, next to the next lower level.
+
+    Never a guarantee: the loss is a simulation from the last year of prices and assumed shocks.
+    """
+    m = metrics.margin_to_limit(loss, limit, base)
+    room = f"{m['points']:+.2f} poin ({fmt_idr_short(abs(m['rupiah']))} dari {base_label} {fmt_idr_short(base)})"
+    text = f"Ruang terhadap batas {limit:.0%}: {room}."
+    if lower is not None:
+        lo_level, lo_loss = lower
+        lo = metrics.margin_to_limit(lo_loss, limit, base)
+        text += f" Level {fmt_level(lo_level)} di bawahnya: perkiraan {fmt_pct(lo_loss * 100)}, ruang {lo['points']:+.2f} poin."
+    if m["crossed"]:
+        return text + " Estimasi sudah melewati batas Anda.", True
+    if m["thin"]:
+        return (text + " Ruang ini sangat tipis, lebih kecil dari ketidakpastian data: selisih drawdown sekitar 0,1 poin saja "
+                f"bisa memindahkan pilihan level. Pertimbangkan level {fmt_level(lower[0])} bila ingin lebih longgar."
+                if lower else text + " Ruang ini sangat tipis, lebih kecil dari ketidakpastian data."), True
+    return text, False
+
+
+GOV_LOW_PCT = 30     # below this share of government bonds in the top holdings, the card warns about credit risk
 
 
 def _holdings_line(p: dict, category: str = "pendapatan_tetap") -> str:

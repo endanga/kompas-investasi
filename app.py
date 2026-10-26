@@ -356,6 +356,11 @@ with tab_rec:
         st.markdown(ui.profile_scale(level_values, level_losses, max_drop_pct / 100, rec.level), unsafe_allow_html=True)
         st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
         st.markdown(ui.risk_meter(rec.stress_loss, max_drop_pct / 100, mode, crisis_loss), unsafe_allow_html=True)
+        margin_base, margin_label = (plan.total_now + budget, "nilai portofolio") if plan.has_portfolio else (budget * 12, "setoran 12 bulan")
+        lower_levels = [(lv, ls) for lv, ls in zip(level_values, level_losses) if lv < rec.level]
+        margin_text, margin_warn = ui.margin_note(rec.stress_loss, max_drop_pct / 100, margin_base, margin_label, rec.level,
+                                                  max(lower_levels) if lower_levels else None)
+        (st.warning if margin_warn else st.caption)(margin_text, **({"icon": ":material/warning:"} if margin_warn else {}))
         if -crisis_loss > max_drop_pct / 100:
             st.warning(f"Bila krisis berat terjadi, perkiraan turun bisa mencapai {ui.fmt_pct(-crisis_loss * 100)} "
                        f"dan melewati batas {max_drop_pct}% Anda. Pertimbangkan profil yang lebih konservatif, atau pastikan Anda "
