@@ -3,7 +3,7 @@ from datetime import date
 import pandas as pd
 import pytest
 
-from tracker import metrics, rules
+from tracker import metrics, products, recommend, rules
 
 
 def test_xirr_simple_one_year_ten_percent():
@@ -240,3 +240,23 @@ def test_rules_flag_emergency_fund():
     h = pd.DataFrame({"product": ["a"], "category": ["saham"], "current_value": [1_000_000.0]})
     titles = [f.title for f in rules.evaluate(profile, tx, h, date(2026, 10, 26))]
     assert "Dana darurat belum penuh" in titles
+
+
+@pytest.mark.parametrize("name, expected", [
+    ("Bahana Likuid Syariah Kelas G", True),
+    ("Sucorinvest Sharia Sukuk Fund Kelas A", True),      # English spelling used by several managers
+    ("Sucorinvest Sharia Money Market Fund", True),
+    ("BRI Indeks Syariah", True),
+    ("Danamas Stabil", False),
+    ("TRIM Kas 2 Kelas A", False),
+])
+def test_is_syariah_recognises_both_spellings(name, expected):
+    assert products.is_syariah(name) is expected
+
+
+def test_loaded_catalog_marks_sharia_spelling_and_syariah_only_keeps_those_funds():
+    cat = products.load_products()
+    marked = set(cat.loc[cat["syariah_dari_nama"] == "ya", "name"])
+    assert {"Sucorinvest Sharia Sukuk Fund Kelas A", "Sucorinvest Sharia Money Market Fund"} <= marked
+    kept = set(recommend.eligible(cat, "pendapatan_tetap", syariah_only=True)["name"])
+    assert "Sucorinvest Sharia Sukuk Fund Kelas A" in kept

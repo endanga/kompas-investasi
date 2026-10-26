@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import re
 import shutil
 from datetime import date
 from pathlib import Path
@@ -22,8 +23,22 @@ ROBO_FUNDS = {
 }
 
 
+SYARIAH_WORDS = re.compile(r"syariah|sharia|islam", re.I)
+
+
+def is_syariah(name: str) -> bool:
+    """Guess from the product name only: 'Syariah' and the English 'Sharia' spelling both count.
+
+    The official sharia status (OJK / DSN-MUI) is not in the data, so this is a guess and says so in the app.
+    """
+    return bool(SYARIAH_WORDS.search(str(name)))
+
+
 def load_products() -> pd.DataFrame:
-    return pd.read_csv(PRODUCTS_FILE)
+    df = pd.read_csv(PRODUCTS_FILE)
+    if "name" in df.columns:  # recomputed on every load, so an older snapshot gets the corrected rule without a new refresh
+        df["syariah_dari_nama"] = ["ya" if is_syariah(n) else "tidak" for n in df["name"]]
+    return df
 
 
 def check_catalog(df: pd.DataFrame) -> str | None:

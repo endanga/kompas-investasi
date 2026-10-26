@@ -20,6 +20,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from .products import is_syariah
+
 DATA = Path(__file__).parent.parent / "data"
 ARCHIVE = DATA / "archive"
 BASE = "https://bibit.id"
@@ -104,7 +106,7 @@ def parse_funds(rows: list[dict], as_of: str) -> pd.DataFrame:
         out.append({
             "product_id": r["path"].rsplit("/", 1)[-1], "name": r["name"], "jenis_bibit": jenis,
             "category": CATEGORY.get(jenis, "lainnya"),
-            "syariah_dari_nama": "ya" if "syariah" in r["name"].lower() else "tidak",
+            "syariah_dari_nama": "ya" if is_syariah(r["name"]) else "tidak",
             "return_1d_pct": _pct(d1), "return_1m_pct": _pct(m1), "return_3m_pct": _pct(m3),
             "return_ytd_pct": _pct(ytd), "return_1y_pct": _pct(y1), "return_3y_pct": _pct(y3),
             "return_5y_pct": _pct(y5), "return_10y_pct": _pct(y10), "last_nav": _num(nav),
