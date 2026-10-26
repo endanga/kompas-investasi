@@ -342,12 +342,15 @@ def empty_state(title: str, body: str, code_lines: list[str]) -> str:
 def _base(fig: go.Figure, height: int, mode: str) -> go.Figure:
     grid = "rgba(128,128,128,.22)"
     fig.update_layout(
-        height=height, margin=dict(l=8, r=8, t=28, b=8), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(family="Source Sans, system-ui, sans-serif", size=13), legend=dict(orientation="h", y=-0.18, x=0),
+        height=height, margin=dict(l=8, r=8, t=44, b=8), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(family="Source Sans, system-ui, sans-serif", size=13),
+        # legend above the plot: below it, it collides with rotated tick labels on a phone
+        legend=dict(orientation="h", yanchor="bottom", y=1.0, x=0, font=dict(size=12)),
         hoverlabel=dict(font_size=13),
     )
-    fig.update_xaxes(showgrid=False, zeroline=False, linecolor="rgba(128,128,128,.4)")
-    fig.update_yaxes(gridcolor=grid, zeroline=False)
+    # automargin lets the axes make room for their own labels and titles instead of being cut off on narrow screens
+    fig.update_xaxes(showgrid=False, zeroline=False, linecolor="rgba(128,128,128,.4)", automargin=True)
+    fig.update_yaxes(gridcolor=grid, zeroline=False, automargin=True)
     return fig
 
 
@@ -415,8 +418,9 @@ def projection_chart(years: list[int], series: dict[str, list[float]], contribut
 
 def compare_chart(rows: dict[str, dict[str, float | None]], mode: str) -> go.Figure:
     """Two portfolios (system vs robo) on the same past-performance measures."""
-    measures = [("return_1y_pct", "Return 1 th"), ("return_3y_pct", "Return 3 th"),
-                ("return_5y_pct", "Return 5 th"), ("drawdown_1y_pct", "Turun terdalam 1 th")]
+    # <br> keeps the labels upright and inside the plot at any width (no rotation, no overlap)
+    measures = [("return_1y_pct", "Return<br>1 th"), ("return_3y_pct", "Return<br>3 th"),
+                ("return_5y_pct", "Return<br>5 th"), ("drawdown_1y_pct", "Turun<br>terdalam")]
     palette = [BLUE[mode], CATEGORY_COLORS[mode]["saham"]]
     fig = go.Figure()
     for (label, vals), color in zip(rows.items(), palette):
@@ -451,8 +455,8 @@ def product_scatter(df: pd.DataFrame, picks: list[str], mode: str) -> go.Figure:
                                  textfont=dict(size=11),
                                  marker=dict(size=15, symbol="diamond", color="rgba(0,0,0,0)", line=dict(width=2.5, color=ink(mode))),
                                  hoverinfo="skip"))
-    return _base(fig, 430, mode).update_layout(xaxis_title="Penurunan terdalam 1 tahun (%) — makin ke kanan makin aman",
-                                               yaxis_title="Return 3 tahun (%)")
+    return _base(fig, 430, mode).update_layout(xaxis_title="Penurunan terdalam 1 th (%)",
+                                               yaxis_title="Return 3 th (%)")
 
 
 _MD = re.compile(r"\*\*(.+?)\*\*")

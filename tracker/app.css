@@ -103,3 +103,41 @@
 .it-term .ex { margin-top: 8px; padding: 6px 10px; border-left: 3px solid var(--primary-color, #1baf7a); font-size: .84rem;
   background: color-mix(in srgb, currentColor 6%, transparent); border-radius: 0 8px 8px 0; opacity: 1; }
 .it-term .ex b { display: inline; margin: 0; }
+
+/* ================= phone layout (narrow screens) ================= */
+.it-mobilehint { display: none; }
+@media (max-width: 768px) {
+  .it-mobilehint { display: block; margin: 8px 2px 2px; padding: 8px 12px; border-radius: 10px; font-size: .85rem;
+    border: 1px dashed color-mix(in srgb, var(--primary-color, #1baf7a) 70%, transparent);
+    background: color-mix(in srgb, var(--primary-color, #1baf7a) 8%, transparent); }
+}
+@media (max-width: 640px) {
+  /* hero: smaller type and padding so the first screen shows content, not just the banner */
+  .it-hero { padding: 20px 18px 18px; border-radius: 18px; }
+  .it-hero .t { font-size: 1.6rem; }
+  .it-hero .s { font-size: .95rem; }
+  .it-chips { gap: 6px; margin-top: 12px; }
+  .it-chip { font-size: .74rem; padding: 4px 10px; }
+
+  /* the four headline numbers sit two per row instead of one tall card each */
+  [data-testid="stHorizontalBlock"]:has(.it-kpi) { gap: .6rem; }
+  [data-testid="stHorizontalBlock"]:has(.it-kpi) > [data-testid="stColumn"] {
+    flex: 1 1 calc(50% - .6rem) !important; min-width: calc(50% - .6rem) !important; }
+  .it-kpi { min-height: 0; padding: 12px 12px; }
+  .it-kpi .v { font-size: 1.25rem; }
+  .it-kpi .d { font-size: .76rem; }
+
+  /* pills and segmented controls wrap instead of scrolling sideways out of sight */
+  [data-testid="stButtonGroup"] > div { flex-wrap: wrap !important; overflow-x: visible !important; }
+
+  /* product cards are stacked, so the equal-height spacing is only wasted room */
+  .it-prod .name { min-height: 0; }
+  .it-prod .why { min-height: 0; }
+  .it-prod .amt { font-size: 1.65rem; }
+
+  /* a little less air between sections, and no oversized headings */
+  .it-h { margin-top: 24px; font-size: 1.15rem; }
+  [data-testid="stTabs"] [role="tablist"] { gap: .3rem; padding-bottom: .6rem; }
+  [data-testid="stTabs"] [role="tab"] { padding: .35rem .6rem; font-size: .84rem; }
+  [data-testid="stMainBlockContainer"] { padding-left: 1rem; padding-right: 1rem; }
+}

@@ -301,6 +301,8 @@ st.markdown(ui.hero(
     [f"Data produk per {data_date}", f"{len(catalog)} reksa dana", f"{RISK_TITLE} {ui.fmt_level(rec.level)} · {profile_name(rec.profile_key)}",
      f"Tujuan {horizon:g} tahun"],
 ), unsafe_allow_html=True)
+st.markdown('<div class="it-mobilehint">Ubah dana, tujuan, dan profil risiko lewat tombol <b>&raquo;</b> di kiri atas.</div>',
+            unsafe_allow_html=True)
 st.markdown('<div class="it-fine">Rekomendasi berdasarkan data produk Bibit dan perhitungan sistem. '
             "Hasil di masa depan tidak dapat dijamin: nilai reksa dana bisa naik maupun turun.</div>", unsafe_allow_html=True)
 
