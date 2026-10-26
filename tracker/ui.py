@@ -275,6 +275,23 @@ def margin_note(loss: float, limit: float, base: float, base_label: str, level: 
 GOV_LOW_PCT = 30     # below this share of government bonds in the top holdings, the card warns about credit risk
 
 
+def _prospectus_line(p: dict, style: str) -> str:
+    """Whole-portfolio mix from the prospectus's audited table, with its date. Empty unless the table matched its own total."""
+    ok = p.get("pros_reconciled")
+    if ok is None or pd.isna(ok) or not bool(ok):
+        return ""
+    gov, corp, ig = p.get("pros_gov_pct"), p.get("pros_corp_pct"), p.get("pros_investment_grade_pct")
+    wam, pos = p.get("pros_wam_years"), p.get("pros_position_date")
+    if any(v is None or pd.isna(v) for v in (gov, corp, ig)):
+        return ""
+    bits = [f"negara {gov:.0f}%", f"korporasi {corp:.0f}%" + (f" ({ig:.0f}% layak investasi)" if corp > 0 else "")]
+    if wam is not None and pd.notna(wam):
+        bits.append(f"jatuh tempo rata-rata {wam:.1f} tahun (bukan durasi)")
+    stamp = f" posisi {_e(str(pos))}" if pos is not None and pd.notna(pos) else ""
+    return (f'<div style="{style}">Menurut prospektus,{stamp}: {" · ".join(bits)}. '
+            "Persen terhadap seluruh portofolio efek, bukan hanya 10 besar.</div>")
+
+
 def _holdings_line(p: dict, category: str = "pendapatan_tetap") -> str:
     """Bond funds: what the fact sheet's ten largest holdings show, or an explicit 'not verified' when it could not be read."""
     if category != "pendapatan_tetap":
@@ -304,7 +321,8 @@ def _holdings_line(p: dict, category: str = "pendapatan_tetap") -> str:
     else:
         warn = ""
     when = f' · fact sheet {_e(str(known("factsheet_date")))}' if known("factsheet_date") else ""
-    return f'<div style="{style}">Dari 10 besar isinya: {share:.0f}% obligasi negara{detail}{warn}{when}</div>'
+    return (f'<div style="{style}">Dari 10 besar isinya: {share:.0f}% obligasi negara{detail}{warn}{when}</div>'
+            + _prospectus_line(p, style))
 
 
 def product_card(category: str, share: float, monthly: float, picks: list[dict], mode: str) -> str:

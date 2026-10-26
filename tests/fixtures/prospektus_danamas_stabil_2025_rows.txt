@@ -1,0 +1,281 @@
+Terdapat | sejumlah | transaksi | dan | perhitungan | yang | menimbulkan | ketidakpastian | penentuan
+jumlah | pajak | penghasilan | karena | interpretasi | atas | peraturan | pajak | yang | berbeda. | Jika | hasil
+pemeriksaan | pajak | berbeda | dengan | jumlah | yang | sebelumnya | telah | dibukukan, | maka | selisih
+tersebut | akan | berdampak | terhadap | aset | dan | liabilitas | pajak | kini | dan | tangguhan | dalam
+periode | dimana | hasil | pemeriksaan | tersebut | terjadi.
+- | 12 | -
+REKSA | DANA | DANAMAS | STABIL
+Catatan | atas | Laporan | Keuangan
+Untuk | Tahun-tahun | yang | Berakhir | 31 | Desember | 2025 | dan | 2024
+(Angka-angka | Disajikan | dalam | Rupiah, | kecuali | Dinyatakan | Lain)
+Estimasi | dan | Asumsi
+Asumsi | utama | mengenai | masa | depan | dan | sumber | utama | lain | dalam | mengestimasi
+ketidakpastian | pada | tanggal | pelaporan | yang | mempunyai | risiko | signifikan | yang | dapat
+menyebabkan | penyesuaian | material | terhadap | nilai | tercatat | aset | dan | liabilitas | dalam | periode
+berikutnya | diungkapkan | di | bawah | ini. | Estimasi | dan | asumsi | didasarkan | pada | parameter | yang
+tersedia | saat | laporan | keuangan | disusun. | Kondisi | yang | ada | dan | asumsi | mengenai
+perkembangan | masa | depan | dapat | berubah | karena | perubahan | situasi | pasar | yang | berada | di | luar
+kendali | Reksa | Dana. | Perubahan | tersebut | tercermin | dalam | asumsi | ketika | keadaan | tersebut
+terjadi.
+Nilai | Wajar | Aset | Keuangan
+Standar | Akuntansi | Keuangan | di | Indonesia | mensyaratkan | pengukuran | aset | keuangan | tertentu
+pada | nilai | wajarnya, | dan | penyajian | ini | mengharuskan | penggunaan | estimasi. | Komponen
+pengukuran | nilai | wajar | yang | signifikan | ditentukan | berdasarkan | bukti | obyektif | yang | dapat
+diverifikasi | (seperti | nilai | tukar, | suku | bunga), | sedangkan | saat | dan | besaran | perubahan | nilai | wajar
+dapat | menjadi | berbeda | karena | penggunaan | metode | penilaian | yang | berbeda.
+Nilai | wajar | portofolio | efek | diungkapkan | pada | Catatan | 15.
+4. | Portofolio | Efek
+a. | Efek | Utang
+2025
+Persentase
+terhadap
+Hirarki | Harga | Suku | jumlah
+nilai | perolehan | bunga | Jatuh | portofolio
+Jenis | efek | wajar | Peringkat | Nilai | nominal | rata-rata | Nilai | wajar | per | tahun | tempo | efek
+% | % | %
+Aset | Keuangan | Diukur | pada
+Nilai | Wajar | melalui | Laba | Rugi
+Obligasi
+Subordinasi | Berkelanjutan | III
+Bank | KB | Bukopin | I | B | 2021 | Level | 1 | AA(idn) | 489.500.000.000 | 102,52 | 527.520.321.625 | 8,90 | 09-Sep-28 | 3,33
+Energi | Mitra | Investama
+I | A | 2022 | Level | 1 | irAA | 490.000.000.000 | 100,35 | 507.076.431.400 | 7,25 | 02-Mar-32 | 3,20
+Berkelanjutan | I | Lontar
+Papyrus | Pulp | & | Paper
+Industry | II | C | 2022 | Level | 1 | idA | 460.500.000.000 | 101,46 | 485.565.176.175 | 10,25 | 22-Apr-27 | 3,07
+Berkelanjutan | III | Merdeka
+Copper | Gold | II | B | 2022 | Level | 1 | 461.000.000.000 | 101,86 | 479.080.834.900 | 9,25 | 28-Apr-27 | 3,02
+idA+
+Berkelanjutan | I | Oki | Pulp | &
+Paper | Mills | IV | C | 2024 | Level | 1 | idA+ | 409.000.000.000 | 100,27 | 461.290.220.550 | 11,00 | 21-Mei-29 | 2,91
+Berkelanjutan | III | Sinar | Mas
+Multifinance | II | B | 2023 | Level | 1 | irA+ | 410.000.000.000 | 101,44 | 447.239.164.300 | 10,50 | 11-Okt-28 | 2,82
+Berkelanjutan | III | Sinar | Mas
+Multiartha | I | 2024 | Level | 1 | irAA | 378.370.000.000 | 100,03 | 423.623.052.000 | 10,00 | 05-Apr-29 | 2,67
+Berkelanjutan | I | Pyridam
+Farma | I | 2022 | Level | 1 | irA- | 395.700.000.000 | 99,61 | 410.179.240.722 | 9,50 | 08-Mar-27 | 2,59
+Berkelanjutan | IV | Medco | Energi
+Internasional | III | B | 2022 | Level | 1 | idAA- | 291.000.000.000 | 100,43 | 299.511.284.400 | 8,10 | 26-Jul-27 | 1,89
+Energi | Mitra | Investama
+I | B | 2022 | Level | 1 | irAA | 287.500.000.000 | 99,94 | 290.619.334.750 | 7,25 | 02-Mar-32 | 1,83
+Obligasi | Pemerintah | FR0097 | Level | 1 | - | 272.528.000.000 | 102,66 | 289.422.037.973 | 7,13 | 15-Jun-43 | 1,83
+Berkelanjutan | III | Adhi | Karya
+III | C | 2022 | Level | 1 | 268.500.000.000 | 102,93 | 284.388.766.740 | 10,20 | 24-Mei-29 | 1,80
+idA-
+I | Nirmala | Taruna | A | 2023 | Level | 1 | irA+ | 246.000.000.000 | 100,11 | 271.017.011.820 | 10,00 | 12-Jan-32 | 1,71
+I | Nirmala | Taruna | B | 2023 | Level | 1 | irA+ | 246.000.000.000 | 100,18 | 270.718.950.840 | 10,25 | 12-Jan-33 | 1,71
+Berkelanjutan | II | Sinar | Mas
+Multiartha | III | B | 2022 | Level | 1 | irAA | 219.341.722.000 | 103,07 | 264.594.772.884 | 10,50 | 04-Okt-32 | 1,67
+II | Wahana | Inti | Selaras | C | 2023 | Level | 1 | idA | 226.000.000.000 | 101,09 | 230.379.760.220 | 8,50 | 08-Agt-28 | 1,45
+Berkelanjutan | II | Sinar | Mas
+Multiartha | III | A | 2022 | Level | 1 | irAA | 211.014.215.000 | 101,17 | 226.390.071.747 | 9,75 | 04-Okt-27 | 1,43
+Berkelanjutan | VII | Federal
+International | Finance
+II | A | 2025 | Level | 1 | AAA(idn) | 220.000.000.000 | 100,00 | 222.798.947.800 | 5,85 | 22-Sep-26 | 1,41
+- | 13 | -
+REKSA | DANA | DANAMAS | STABIL
+Catatan | atas | Laporan | Keuangan
+Untuk | Tahun-tahun | yang | Berakhir | 31 | Desember | 2025 | dan | 2024
+(Angka-angka | Disajikan | dalam | Rupiah, | kecuali | Dinyatakan | Lain)
+2025
+Persentase
+terhadap
+Hirarki | Harga | Suku | jumlah
+nilai | perolehan | bunga | Jatuh | portofolio
+Jenis | efek | wajar | Peringkat | Nilai | nominal | rata-rata | Nilai | wajar | per | tahun | tempo | efek
+% | % | %
+Aset | Keuangan | Diukur | pada
+Nilai | Wajar | melalui | Laba | Rugi
+Obligasi
+Berkelanjutan | II | Lontar
+Papyrus | Pulp | & | Paper
+Industry | IV | C | 2024 | Level | 1 | idA | 198.000.000.000 | 100,22 | 221.434.151.400 | 11,25 | 05-Jun-29 | 1,40
+Berkelanjutan | III | Adhi | Karya | III
+B | 2022 | Level | 1 | idA- | 210.000.000.000 | 100,03 | 216.877.529.400 | 9,00 | 24-Mei-27 | 1,37
+Berwawasan | Lingkungan
+Berkelanjutan | I | OKI
+Pulp | & | Paper | Mills | I | C | 2023 | Level | 1 | idA+ | 195.000.000.000 | 100,00 | 215.154.640.350 | 11,00 | 12-Okt-28 | 1,36
+Obligasi | Pemerintah | FR0090 | Level | 1 | - | 200.000.000.000 | 100,21 | 200.809.674.000 | 5,13 | 15-Apr-27 | 1,27
+I | Nirmala | Taruna | C | 2023 | Level | 1 | irA+ | 170.000.000.000 | 100,08 | 192.810.319.500 | 10,50 | 12-Jan-34 | 1,22
+Berkelanjutan | IV | Maybank
+Finance | II | B | 2025 | Level | 1 | idAAA | 191.000.000.000 | 100,00 | 191.668.500.000 | 5,55 | 26-Nov-28 | 1,21
+Berkelanjutan | I | Sampoerna
+Agro | III | B | 2022 | Level | 1 | idA | 172.000.000.000 | 100,19 | 172.825.579.360 | 8,40 | 02-Mar-27 | 1,09
+Berkelanjutan | III | PLN
+IV | E | 2019 | Level | 1 | idAAA | 121.000.000.000 | 113,62 | 156.203.894.880 | 9,98 | 01-Agt-39 | 0,99
+Subordinasi | Berkelanjutan | I
+Bank | Sinarmas | I | 2022 | Level | 1 | irA | 156.500.000.000 | 94,00 | 155.215.455.825 | 6,50 | 08-Jul-27 | 0,98
+Berkelanjutan | III | Barito
+PacificI | B | 2023 | Level | 1 | idA+ | 140.000.000.000 | 100,12 | 143.145.445.800 | 9,25 | 08-Feb-28 | 0,90
+II | Pindo | Deli | Pulp | And | Paper
+Mills | C | 2022 | Level | 1 | idA+ | 115.000.000.000 | 101,04 | 123.685.329.000 | 11,00 | 14-Jul-27 | 0,78
+Berkelanjutan | III | Barito
+Pacific | III | B | 2024 | Level | 1 | idA+ | 113.000.000.000 | 100,00 | 117.980.065.940 | 9,00 | 16-Jul-29 | 0,74
+I | Pos | Indonesia | B | 2022 | Level | 1 | A(idn) | 104.000.000.000 | 105,77 | 112.593.065.520 | 11,75 | 28-Des-27 | 0,71
+Berkelanjutan | I | Pindo | Deli
+Pulp | And | Paper | Mills
+II | B | 2025 | Level | 1 | idA+ | 100.000.000.000 | 100,00 | 105.964.940.000 | 10,00 | 30-Apr-28 | 0,67
+Berkelanjutan | V | Indah | Kiat
+Pulp | & | Paper | V | B | 2025 | Level | 1 | idA+ | 100.000.000.000 | 100,00 | 101.020.346.000 | 9,50 | 30-Sep-30 | 0,64
+Obligasi | Pemerintah | FR0098 | Level | 1 | - | 87.925.000.000 | 103,99 | 93.991.825.000 | 7,13 | 15-Jun-38 | 0,59
+Obligasi | Pemerintah | FR0102 | Level | 1 | 86.598.000.000 | 99,62 | 88.855.320.623 | 6,88 | 15-Jul-54 | 0,56
+-
+Berkelanjutan | IV | Bank
+Victoria | II | 2025 | Level | 1 | 85.000.000.000 | 100,00 | 84.330.974.350 | 8,25 | 26-Sep-28 | 0,53
+idA-
+Berkelanjutan | I | Merdeka
+Battery | Materials | III | A | 2025 | Level | 1 | idA | 72.000.000.000 | 100,00 | 72.062.441.280 | 7,50 | 09-Des-28 | 0,45
+I | Dwi | Guna | Laksana | 2025 | Level | 1 | irA- | 60.000.000.000 | 100,00 | 62.092.370.400 | 10,00 | 18-Jun-30 | 0,39
+Berkelanjutan | I | Merdeka
+Battery | Materials | III | B | 2025 | Level | 1 | idA | 58.500.000.000 | 100,00 | 58.544.303.805 | 8,25 | 09-Des-30 | 0,37
+Berkelanjutan | IV | Summarecon
+Agung | III | B | 2024 | Level | 1 | idA+ | 51.000.000.000 | 100,49 | 52.888.067.430 | 9,30 | 04-Jun-29 | 0,33
+Berkelanjutan | II | Pyridam
+Farma | I | 2025 | Level | 1 | irA- | 52.500.000.000 | 100,00 | 52.862.591.250 | 9,00 | 09-Jul-28 | 0,33
+Berkelanjutan | VI | Federal
+International | Finance
+V | A | 2025 | Level | 1 | idAAA | 51.000.000.000 | 100,02 | 51.230.496.030 | 6,40 | 25-Apr-26 | 0,32
+Obligasi | Pemerintah | FR0086 | Level | 1 | 49.000.000.000 | 100,36 | 49.117.643.120 | 5,50 | 15-Apr-26 | 0,31
+-
+Berkelanjutan | IV | Barito
+Pacific | I | B | 2025 | Level | 1 | idA+ | 46.000.000.000 | 100,00 | 48.255.059.380 | 9,25 | 10-Jul-32 | 0,31
+Berkelanjutan | II | Sinar | Mas
+Multiartha | II | D | 2022 | Level | 1 | irAA | 45.662.555.000 | 101,11 | 47.904.745.356 | 9,75 | 26-Agt-27 | 0,30
+Berkelanjutan | III | Sinar | Mas
+Multifinance | I | C | 2023 | Level | 1 | irA+ | 43.145.000.000 | 102,14 | 46.614.853.787 | 10,75 | 07-Feb-28 | 0,29
+Berkelanjutan | IV | Chandra | Asri
+Petrochemical | II | A | 2023 | Level | 1 | idAA- | 31.500.000.000 | 101,56 | 32.913.783.630 | 8,40 | 28-Feb-28 | 0,21
+Berkelanjutan | I | Hutama | Karya
+III | B | 2017 | Level | 1 | idAAA(gg) | 31.000.000.000 | 103,72 | 32.189.928.180 | 8,40 | 26-Sep-27 | 0,20
+Berkelanjutan | I | Pyridam
+Farma | III | 2024 | Level | 1 | irA- | 30.000.000.000 | 100,01 | 30.149.959.200 | 9,50 | 27-Feb-26 | 0,19
+Berkelanjutan | V | Wom
+Finance | I | B | 2024 | Level | 1 | idAAA | 23.500.000.000 | 101,30 | 24.004.232.450 | 6,95 | 02-Jul-27 | 0,15
+Berkelanjutan | VII | Astra
+Sedaya | Finance | II | A | 2025 | Level | 1 | idAAA | 22.000.000.000 | 100,00 | 21.967.804.980 | 5,40 | 04-Nov-26 | 0,14
+III | Pindo | Deli | Pulp | And | Paper
+Mills | C | 2023 | Level | 1 | idA+ | 17.000.000.000 | 104,66 | 18.745.909.180 | 11,25 | 03-Jan-29 | 0,12
+Berkelanjutan | I | Hino | Finance
+Indonesia | I | A | 2025 | Level | 1 | AA+(idn) | 18.500.000.000 | 100,00 | 18.566.824.775 | 6,50 | 30-Mar-26 | 0,12
+Berkelanjutan | V | Indah | Kiat
+Pulp | & | Paper | II | C | 2024 | Level | 1 | idA+ | 15.000.000.000 | 100,00 | 16.666.249.200 | 10,75 | 05-Des-29 | 0,11
+Berkelanjutan | I | Oki | Pulp | &
+Paper | Mills | VI | C | 2024 | Level | 1 | idA+ | 15.000.000.000 | 99,96 | 16.564.132.050 | 10,75 | 08-Nov-29 | 0,11
+Berkelanjutan | II | Trimegah
+Sekuritas | Indonesia | II | A | 2025 | Level | 1 | idA | 15.000.000.000 | 100,00 | 14.924.758.950 | 6,75 | 18-Okt-26 | 0,09
+Berkelanjutan | IV | Indomobil
+Finance | Indonesia | II | C | 2021 | Level | 1 | 11.000.000.000 | 99,87 | 11.098.318.550 | 7,50 | 19-Nov-26 | 0,07
+idAA-
+- | 14 | -
+REKSA | DANA | DANAMAS | STABIL
+Catatan | atas | Laporan | Keuangan
+Untuk | Tahun-tahun | yang | Berakhir | 31 | Desember | 2025 | dan | 2024
+(Angka-angka | Disajikan | dalam | Rupiah, | kecuali | Dinyatakan | Lain)
+2025
+Persentase
+terhadap
+Hirarki | Harga | Suku | jumlah
+nilai | perolehan | bunga | Jatuh | portofolio
+Jenis | efek | wajar | Peringkat | Nilai | nominal | rata-rata | Nilai | wajar | per | tahun | tempo | efek
+% | % | %
+Aset | Keuangan | Diukur | pada
+Nilai | Wajar | melalui | Laba | Rugi
+Obligasi
+Berkelanjutan | II | OKI | Pulp | &
+Paper | Mills | III | B | 2025 | Level | 1 | idA+ | 11.000.000.000 | 100,00 | 11.066.126.830 | 8,50 | 04-Nov-30 | 0,07
+III | Wahana | Inti | Selaras | B | 2024 | Level | 1 | idA | 10.500.000.000 | 101,42 | 10.725.265.635 | 8,75 | 05-Jul-27 | 0,07
+Berkelanjutan | IV | Maybank
+Finance | II | A | 2025 | Level | 1 | idAAA | 10.000.000.000 | 100,00 | 10.006.008.800 | 5,00 | 06-Des-26 | 0,06
+Berkelanjutan | IV | Medco | Energi
+Internasional | I | B | 2021 | Level | 1 | idAA- | 8.000.000.000 | 102,09 | 8.153.047.200 | 8,50 | 09-Sep-26 | 0,05
+Berkelanjutan | III | PLN | VI
+E | 2020 | Level | 1 | idAAA | 7.000.000.000 | 110,02 | 7.935.170.530 | 9,05 | 18-Feb-40 | 0,05
+II | KB | Finansia | Multi | Finance
+A | 2023 | Level | 1 | AAA(idn) | 5.000.000.000 | 100,21 | 5.054.121.700 | 7,30 | 27-Jun-26 | 0,03
+Berkelanjutan | II | Hutama
+Karya | I | B | 2021 | Level | 1 | idAA- | 3.000.000.000 | 102,45 | 3.039.997.920 | 8,55 | 07-Sep-26 | 0,02
+Obligasi | Pemerintah | FR0084 | Level | 1 | - | 3.000.000.000 | 100,81 | 3.009.866.040 | 7,25 | 15-Feb-26 | 0,02
+Berkelanjutan | V | Indah | Kiat
+Pulp | & | Paper | III | C | 2025 | Level | 1 | idA+ | 2.000.000.000 | 100,00 | 2.209.123.520 | 10,50 | 12-Mar-30 | 0,01
+Berkelanjutan | V | Indah | Kiat
+Pulp | & | Paper | II | B | 2024 | Level | 1 | idA+ | 2.000.000.000 | 100,00 | 2.138.897.200 | 10,25 | 05-Des-27 | 0,01
+Berkelanjutan | V | Indah | Kiat
+Pulp | & | Paper | III | B | 2025 | Level | 1 | idA+ | 2.000.000.000 | 100,00 | 2.112.646.400 | 10,00 | 12-Mar-28 | 0,01
+Obligasi | Pemerintah | FR0087 | Level | 1 | - | 1.500.000.000 | 99,01 | 1.551.346.170 | 6,50 | 15-Feb-31 | 0,01
+Obligasi | Pemerintah | FR0073 | Level | 1 | - | 1.000.000.000 | 108,90 | 1.136.865.430 | 8,75 | 15-Mei-31 | 0,01
+Berkelanjutan | III | PLN | III
+D | 2019 | Level | 1 | idAAA | 1.000.000.000 | 110,46 | 1.094.675.650 | 9,60 | 19-Feb-29 | 0,01
+Berkelanjutan | II | OKI | Pulp | &
+Paper | Mills | I | C | 2025 | Level | 1 | idA+ | 1.000.000.000 | 100,00 | 1.088.630.030 | 10,50 | 25-Mar-30 | 0,01
+Berkelanjutan | II | OKI | Pulp | &
+Paper | Mills | II | A | 2025 | Level | 1 | idA+ | 1.000.000.000 | 100,00 | 1.063.516.600 | 10,00 | 29-Jul-28 | 0,01
+Berkelanjutan | II | OKI | Pulp | &
+Paper | Mills | I | B | 2025 | Level | 1 | idA+ | 1.000.000.000 | 100,00 | 1.058.070.630 | 10,00 | 25-Mar-28 | 0,01
+Obligasi | Pemerintah | FR0064 | Level | 1 | - | 1.000.000.000 | 99,37 | 1.019.771.110 | 6,13 | 15-Mei-28 | 0,01
+Berkelanjutan | I | Merdeka
+Battery | Materials | I | A | 2025 | Level | 1 | idA | 1.000.000.000 | 100,00 | 997.753.630 | 7,50 | 15-Jul-26 | 0,01
+Berkelanjutan | VII | Adira
+Finance | I | A | 2025 | Level | 1 | idAAA | 700.000.000 | 100,00 | 704.191.376 | 6,20 | 18-Jul-26 | 0,01
+Berkelanjutan | VII | Federal
+International | Finance
+I | A | 2025 | Level | 1 | AAA(idn) | 700.000.000 | 100,12 | 704.002.817 | 6,15 | 18-Jul-26 | 0,01
+Berkelanjutan | V | Toyota | Astra
+Financial | Services | I | A | 2025 | Level | 1 | AAA(idn) | 700.000.000 | 100,06 | 704.002.817 | 6,15 | 18-Jul-26 | 0,01
+Berkelanjutan | V | SANF | Dengan
+Tingkat | Bunga | Tetap | I | A | 2025 | Level | 1 | AA+(idn) | 700.000.000 | 100,06 | 703.742.599 | 6,25 | 18-Jul-26 | 0,01
+Berkelanjutan | I | Oki | Pulp | &
+Paper | Mills | VI | B | 2024 | Level | 1 | idA+ | 500.000.000 | 106,90 | 528.800.000 | 10,25 | 08-Nov-27 | 0,00
+Berwawasan | Lingkungan
+Berkelanjutan | I | Oki | Pulp | &
+Paper | Mills | IV | B | 2024 | Level | 1 | 500.000.000 | 102,17 | 524.004.445 | 10,50 | 21-Mei-27 | 0,00
+idA+
+Berkelanjutan | III | Lontar
+Papyrus | Pulp | & | Paper
+Industry | II | B | 2025 | Level | 1 | idA | 500.000.000 | 102,48 | 522.573.215 | 10,25 | 11-Feb-28 | 0,00
+Berkelanjutan | I | Oki | Pulp | &
+Paper | Mills | IV | B | 2024 | Level | 1 | idA+ | 500.000.000 | 103,07 | 518.238.335 | 10,50 | 21-Mei-27 | 0,00
+Berkelanjutan | VI | BFI | Finance
+Indonesia | II | A | 2025 | Level | 1 | AA-(idn) | 500.000.000 | 100,06 | 502.200.605 | 6,45 | 27-Jun-26 | 0,00
+Obligasi | Pemerintah | FR0096 | Level | 1 | - | 438.000.000 | 103,22 | 462.478.414 | 7,00 | 15-Feb-33 | 0,00
+Berkelanjutan | III | Waskita
+Karya | IV | B | 2019 | Level | 2 | idD | 323.500.000.000 | 99,03 | 155.280.000.000 | 9,75 | 16-Mei-24 | 0,98
+Berkelanjutan | I | Wijaya
+Karya | II | C | 2021 | Level | 2 | idD | 126.000.000.000 | 100,04 | 113.387.400.000 | 9,75 | 03-Mar-28 | 0,72
+Berkelanjutan | II | Wijaya | Karya
+I | C | 2021 | Level | 2 | idD | 108.000.000.000 | 98,69 | 97.189.200.000 | 9,25 | 08-Sep-28 | 0,61
+Berkelanjutan | II | Wijaya | Karya
+II | B | 2022 | Level | 2 | idD | 95.337.142.857 | 100,54 | 85.793.894.857 | 7,75 | 18-Feb-27 | 0,54
+Berkelanjutan | I | Wijaya | Karya
+I | C | 2020 | Level | 2 | idD | 50.000.000.000 | 101,77 | 44.995.000.000 | 9,85 | 18-Des-27 | 0,29
+Wajib | Konversi | Waskita
+Beton | Precast | II | 2023 | Level | 2 | idB | 37.150.805.185 | 100,00 | 36.556.392.302 | - | 12-Des-33 | 0,23
+Berkelanjutan | I | Wijaya | Karya
+I | B | 2020 | Level | 2 | idD | 14.000.000.000 | 96,33 | 12.598.600.000 | 9,25 | 18-Des-27 | 0,08
+Berkelanjutan | II | Wijaya | Karya
+I | B | 2021 | Level | 2 | idD | 10.000.000.000 | 100,30 | 8.999.000.000 | 8,55 | 08-Sep-26 | 0,06
+Berkelanjutan | III | Waskita
+Karya | III | B | 2018 | Level | 2 | idB | 11.500.000.000 | 100,32 | 8.970.000.000 | 5,00 | 31-Des-34 | 0,06
+- | 15 | -
+REKSA | DANA | DANAMAS | STABIL
+Catatan | atas | Laporan | Keuangan
+Untuk | Tahun-tahun | yang | Berakhir | 31 | Desember | 2025 | dan | 2024
+(Angka-angka | Disajikan | dalam | Rupiah, | kecuali | Dinyatakan | Lain)
+2025
+Persentase
+terhadap
+Hirarki | Harga | Suku | jumlah
+nilai | perolehan | bunga | Jatuh | portofolio
+Jenis | efek | wajar | Peringkat | Nilai | nominal | rata-rata | Nilai | wajar | per | tahun | tempo | efek
+% | % | %
+Aset | Keuangan | Diukur | pada
+Nilai | Wajar | melalui | Laba | Rugi
+Obligasi
+Berkelanjutan | I | Wijaya
+Karya | I | A | 2020 | Level | 2 | idD | 3.489.425.982 | 99,84 | 3.140.134.441 | 8,60 | 18-Des-27 | 0,02
+Waskita | Beton | Precast | II | 2022 | Level | 2 | idB | 6.556.024.445 | 100,00 | 2.950.211.000 | 2,00 | 25-Sep-28 | 0,02
+Surat | Perbendaharaan | Negara
+SPN12260813 | Level | 1 | 79.736.000.000 | 95,42 | 77.454.074.487 | 5,40 | 13-Agt-26 | 0,49
+-
+Jumlah | 10.228.291.890.469 | 10.592.995.953.512 | 66,88
+2024
+Persentase

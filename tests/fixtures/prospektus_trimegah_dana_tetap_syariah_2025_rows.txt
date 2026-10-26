@@ -1,0 +1,230 @@
+Reksa | Dana | menelaah | kualitas | aset | keuangan | pada | setiap | tanggal | laporan | posisi | keuangan
+untuk | menilai | apakah | penurunan | nilai | harus | dicatat | dalam | laporan | laba | rugi. | Dalam
+menentukan | apakah | cadangan | kerugian | penurunan | nilai | harus | dibentuk | dalam | laporan | laba
+rugi, | Reksa | Dana | membuat | estimasi | penilaian | apakah | terdapat | indikasi | penurunan | kualitas
+aset. | Estimasi | tersebut | didasarkan | pada | asumsi | dari | sejumlah | aset | dan | hasil | akhirnya
+mungkin | berbeda, | yang | mengakibatkan | perubahan | di | masa | mendatang | atas | cadangan
+kerugian | penurunan | nilai.
+Kondisi | spesifik | counterparty | yang | mengalami | penurunan | nilai | dalam | pembentukan
+cadangan | kerugian | penurunan | nilai | atas | piutang | dievaluasi | secara | individu | berdasarkan
+estimasi | terbaik | Reksa | Dana | atas | nilai | kini | arus | kas | yang | diharapkan | akan | diterima. | Dalam
+mengestimasi | arus | kas | tersebut, | Reksa | Dana | membuat | pertimbangan | tentang | situasi
+keuangan | counterparty | dan/atau | nilai | realisasi | bersih | dari | setiap | agunan. | Setiap | aset | yang
+mengalami | penurunan | nilai | dinilai | sesuai | dengan | manfaat | yang | ada, | dan | strategi
+penyelesaian | serta | estimasi | arus | kas | yang | diperkirakan | dapat | diterima.
+c. | Pajak | Penghasilan
+Pertimbangan | yang | signifikan | dibutuhkan | untuk | menentukan | jumlah | pajak | penghasilan.
+Terdapat | sejumlah | transaksi | dan | perhitungan | yang | menimbulkan | ketidakpastian | penentuan
+jumlah | pajak | penghasilan | karena | interpretasi | atas | peraturan | pajak | yang | berbeda. | Jika | hasil
+pemeriksaan | pajak | berbeda | dengan | jumlah | yang | sebelumnya | telah | dibukukan, | maka | selisih
+tersebut | akan | berdampak | terhadap | aset | dan | liabilitas | pajak | kini | dan | tangguhan | dalam
+periode | dimana | hasil | pemeriksaan | tersebut | terjadi.
+- | 12 | -
+REKSA | DANA | SYARIAH | TRIMEGAH | DANA | TETAP | SYARIAH
+Catatan | atas | Laporan | Keuangan
+Untuk | Tahun-tahun | yang | Berakhir | 31 | Desember | 2025 | dan | 2024
+(Angka-angka | Disajikan | dalam | Rupiah, | kecuali | Dinyatakan | Lain)
+4. | Portofolio | Efek
+a. | Sukuk
+2025
+Persentase
+Harga | Tingkat | terhadap
+perolehan | bagi | Jatuh | jumlah
+Jenis | efek | Peringkat | Nilai | nominal | rata-rata | Nilai | wajar | hasil | tempo | portofolio | efek
+% | % | %
+Sukuk | Diukur | pada | Nilai | Wajar
+melalui | Laba | Rugi
+Sukuk
+Surat | Berharga | Syariah
+Negara | PBS030 | - | 2.000.372.000.000 | 100,58 | 2.031.336.778.378 | 5,875 | 15-Jul-28 | 21,88
+Surat | Berharga | Syariah
+Negara | PBSG001 | - | 823.800.000.000 | 102,93 | 857.946.510.000 | 6,625 | 15-Sep-29 | 9,24
+Surat | Berharga | Syariah
+Negara | PBS003 | - | 736.091.000.000 | 99,71 | 745.967.832.233 | 6,00 | 15-Jan-27 | 8,04
+Mudharabah | Berkelanjutan | I
+Merdeka | Battery | Materials
+II | B | 2025 | idA(sy) | 572.000.000.000 | 99,88 | 589.074.200.000 | 8,75 | 20-Agt-28 | 6,35
+Mudharabah | Berkelanjutan | II | Oki
+Pulp | & | Paper | Mills | II | A | 2025 | idA+(sy) | 473.500.000.000 | 99,94 | 482.567.335.600 | 10,00 | 29-Jul-28 | 5,20
+Mudharabah | Berkelanjutan | I
+Merdeka | Battery | Materials | I
+B | 2025 | idA(sy) | 253.500.000.000 | 99,94 | 261.102.652.590 | 8,75 | 08-Jul-28 | 2,81
+Surat | Berharga | Syariah
+Negara | PBS040 | - | 247.665.000.000 | 98,20 | 243.256.582.813 | 5,00 | 15-Nov-30 | 2,62
+Mudharabah | Berkelanjutan | IV
+Indah | Kiat | Pulp | & | Paper | IV
+B | 2025 | idA+(sy) | 228.500.000.000 | 100,06 | 232.682.994.120 | 10,00 | 12-Jun-28 | 2,51
+Mudharabah | Berkelanjutan | I
+Pindo | Deli | Pulp | And | Paper | Mills
+III | 2025 | idA+(sy) | 169.105.000.000 | 99,88 | 171.651.794.015 | 10,25 | 27-Agt-30 | 1,85
+Mudharabah | Berwawasan | Sosial
+Berkelanjutan | I | Pegadaian | III
+A | 2025 | idAAA(sy) | 164.000.000.000 | 99,99 | 163.603.139.680 | 5,25 | 23-Nov-26 | 1,76
+Mudharabah | Berkelanjutan | IV
+Indah | Kiat | Pulp | & | Paper | III
+B | 2025 | idA+(sy) | 140.000.000.000 | 100,00 | 148.039.341.800 | 10,00 | 12-Mar-28 | 1,59
+Mudharabah | Berkelanjutan | I
+Lontar | Papyrus | Pulp | & | Paper
+Industry | II | B | 2025 | idA(sy) | 135.000.000.000 | 99,99 | 142.714.768.050 | 10,25 | 11-Feb-28 | 1,54
+Ijarah | Berkelanjutan | I | Tower
+Bersama | Infrastructure | II | A | 2025 | AA+(idn) | 134.000.000.000 | 99,93 | 134.111.887.320 | 5,50 | 04-Des-28 | 1,44
+Mudharabah | Berkelanjutan | I | Dian
+Swastatika | Sentosa | IV | B | 2025 | idAA(sy) | 123.975.000.000 | 100,15 | 126.218.896.670 | 6,875 | 09-Okt-30 | 1,36
+Mudharabah | II | Pindo | Deli | Pulp
+and | Paper | Mills | B | 2023 | idA+(sy) | 120.690.000.000 | 102,32 | 125.480.236.790 | 10,75 | 03-Jan-27 | 1,35
+Mudharabah | Berkelanjutan | IV | Indah
+Kiat | Pulp | & | Paper | II | B | 2024 | idA+(sy) | 115.000.000.000 | 100,15 | 121.433.969.400 | 10,25 | 05-Des-27 | 1,31
+Surat | Berharga | Syariah
+Negara | PBS032 | - | 119.000.000.000 | 97,27 | 119.080.300.010 | 4,875 | 15-Jul-26 | 1,28
+Mudharabah | Berkelanjutan | II | Oki
+Pulp | & | Paper | Mills | I | A | 2025 | idA+(sy) | 113.000.000.000 | 100,12 | 117.245.630.350 | 10,00 | 25-Mar-28 | 1,26
+Mudharabah | Berkelanjutan | III
+Pegadaian | V | B | 2025 | idAAA(sy) | 115.000.000.000 | 99,98 | 116.269.817.350 | 6,20 | 03-Sep-28 | 1,25
+Mudharabah | Berkelanjutan | I | Dian
+Swastatika | Sentosa | III | B | 2024 | idAA(sy) | 110.000.000.000 | 100,33 | 113.872.122.100 | 8,125 | 26-Nov-27 | 1,23
+Mudharabah | Berlandaskan
+Keberlanjutan | Berkelanjutan | I
+Bank | BSI | II | C | 2025 | idAAA(sy) | 100.520.000.000 | 100,00 | 102.517.974.723 | 6,65 | 26-Jun-28 | 1,10
+Mudharabah | Berkelanjutan | IV
+Indah | Kiat | Pulp | & | Paper | V | 2025 | idA+(sy) | 96.500.000.000 | 99,89 | 97.894.482.900 | 9,50 | 30-Sep-30 | 1,05
+Mudharabah | Berkelanjutan | II
+Oki | Pulp | & | Paper | Mills | III | A | 2025 | idA+(sy) | 91.950.000.000 | 99,91 | 91.766.100.000 | 8,00 | 04-Nov-28 | 0,99
+Mudharabah | Berkelanjutan | I
+Lontar | Papyrus | Pulp | & | Paper
+Industry | I | 2024 | idA(sy) | 73.500.000.000 | 101,55 | 80.939.267.220 | 11,00 | 04-Okt-29 | 0,87
+Wakalah | Berkelanjutan | I
+Petrindo | Jaya | Kreasi | I | B | 2025 | idA(sy) | 77.500.000.000 | 100,00 | 80.477.374.075 | 9,00 | 04-Jul-30 | 0,87
+Ijarah | Berkelanjutan | I | Petrosea
+II | B | 2025 | idA+(sy) | 73.950.000.000 | 100,30 | 79.669.395.790 | 8,75 | 21-Mar-30 | 0,86
+Wakalah | Berkelanjutan | I | Petrindo
+Jaya | Kreasi | II | B | 2025 | idA(sy) | 76.750.000.000 | 99,90 | 78.766.784.310 | 9,00 | 24-Okt-32 | 0,85
+Mudharabah | Berkelanjutan | I
+Merdeka | Battery | Materials
+III | A | 2025 | idA(sy) | 74.145.000.000 | 99,91 | 74.182.071.759 | 7,50 | 09-Des-28 | 0,80
+- | 13 | -
+REKSA | DANA | SYARIAH | TRIMEGAH | DANA | TETAP | SYARIAH
+Catatan | atas | Laporan | Keuangan
+Untuk | Tahun-tahun | yang | Berakhir | 31 | Desember | 2025 | dan | 2024
+(Angka-angka | Disajikan | dalam | Rupiah, | kecuali | Dinyatakan | Lain)
+2025
+Persentase
+Harga | Tingkat | terhadap
+perolehan | bagi | Jatuh | jumlah
+Jenis | efek | Peringkat | Nilai | nominal | rata-rata | Nilai | wajar | hasil | tempo | portofolio | efek
+% | % | %
+Sukuk | Diukur | pada | Nilai | Wajar
+melalui | Laba | Rugi
+Sukuk
+Ijarah | Berkelanjutan | I | Petrosea
+I | B | 2024 | idA+(sy) | 71.350.000.000 | 100,05 | 72.547.544.108 | 8,00 | 13-Des-27 | 0,78
+Ijarah | Berkelanjutan | II | Kereta | Api
+Indonesia | II | A | 2025 | idAAA(sy) | 70.000.000.000 | 99,98 | 72.147.816.300 | 6,90 | 27-Mar-30 | 0,78
+Wakalah | Bi | Al-Istitsmar
+Berkelanjutan | I | CIMB | Niaga
+Auto | Finance | III | B | 2025 | AAA(idn) | 70.000.000.000 | 99,97 | 71.290.097.200 | 6,50 | 03-Sep-28 | 0,77
+Mudharabah | Berkelanjutan | II
+Lontar | Papyrus | Pulp | & | Paper
+Industry | I | A | 2025 | idA(sy) | 69.000.000.000 | 99,95 | 69.014.806.020 | 7,00 | 10-Des-28 | 0,74
+Mudharabah | Berkelanjutan | I
+Pindo | Deli | Pulp | And | Paper | Mills
+II | B | 2025 | idA+(sy) | 65.000.000.000 | 99,99 | 68.877.211.000 | 10,00 | 30-Apr-28 | 0,74
+Mudharabah | Berkelanjutan | I | OKI
+Pulp | & | Paper | Mills | II | B | 2023 | idA+(sy) | 65.000.000.000 | 104,16 | 67.311.897.250 | 10,50 | 12-Des-26 | 0,72
+Mudharabah | Berkelanjutan | III
+Pegadaian | V | A | 2025 | idAAA(sy) | 60.000.000.000 | 99,99 | 60.385.210.800 | 6,10 | 13-Sep-26 | 0,65
+Mudharabah | Berkelanjutan | III
+Indah | Kiat | Pulp | & | Paper | I
+A | 2023 | idA+(sy) | 50.900.000.000 | 100,59 | 51.952.801.348 | 10,25 | 11-Jul-26 | 0,56
+Mudharabah | Berkelanjutan | I | Dian
+Swastatika | Sentosa | IV | A | 2025 | idAA(sy) | 51.410.000.000 | 99,92 | 51.566.544.478 | 6,25 | 09-Okt-28 | 0,56
+Wakalah | Berkelanjutan | I | Medco
+Power | Indonesia | IV | B | 2025 | idA(sy) | 49.000.000.000 | 100,00 | 50.886.499.510 | 9,00 | 07-Feb-30 | 0,55
+Mudharabah | Berkelanjutan | I
+Pindo | Deli | Pulp | And | Paper
+Mills | I | C | 2024 | idA+(sy) | 42.500.000.000 | 100,10 | 45.002.003.050 | 10,25 | 07-Jan-28 | 0,48
+Wakalah | Bi | Al-Istitsmar
+Berkelanjutan | I | CIMB | Niaga | Auto
+Finance | II | B | 2025 | AAA(idn) | 40.000.000.000 | 99,96 | 41.086.651.200 | 7,00 | 13-Mar-28 | 0,44
+Mudharabah | Berkelanjutan | II | Oki
+Pulp | & | Paper | Mills | III | B | 2025 | idA+(sy) | 35.924.000.000 | 99,89 | 36.565.837.224 | 8,50 | 04-Nov-30 | 0,39
+Mudharabah | Berkelanjutan | I
+Merdeka | Battery | Materials | III
+B | 2025 | idA(sy) | 35.350.000.000 | 99,90 | 35.335.544.324 | 8,25 | 09-Des-30 | 0,38
+Mudharabah | Berkelanjutan | II
+Lontar | Papyrus | Pulp | & | Paper
+Industry | I | B | 2025 | idA(sy) | 34.790.000.000 | 99,94 | 34.823.163.568 | 7,50 | 10-Des-30 | 0,37
+Ijarah | Berkelanjutan | II | Bumi
+Serpong | Damai | I | A | 2025 | idAA(sy) | 28.495.000.000 | 99,95 | 28.409.105.527 | 6,00 | 23-Sep-28 | 0,31
+Ijarah | Berkelanjutan | I | Bumi
+Serpong | Damai | I | B | 2022 | idAA(sy) | 25.000.000.000 | 100,26 | 25.603.750.500 | 7,75 | 07-Apr-27 | 0,28
+Mudharabah | Berkelanjutan | I
+Hutama | Karya | II | B | 2022 | idAA-(sy) | 20.000.000.000 | 100,10 | 20.383.920.600 | 7,75 | 12-Jan-27 | 0,22
+Surat | Berharga | Syariah
+Negara | PBS034 | - | 20.000.000.000 | 96,98 | 20.317.615.200 | 6,50 | 15-Jun-39 | 0,22
+Mudharabah | Berkelanjutan | I | OKI
+Pulp | & | Paper | Mills | I | A | 2023 | idA+(sy) | 18.300.000.000 | 100,14 | 18.772.881.699 | 10,50 | 12-Okt-26 | 0,20
+Mudharabah | Berkelanjutan | III
+Indah | Kiat | Pulp | & | Paper | II
+B | 2023 | idA+(sy) | 18.000.000.000 | 105,21 | 18.306.900.000 | 10,25 | 25-Agu-26 | 0,20
+Ijarah | Berkelanjutan | I | Samudera
+Indonesia | II | 2025 | idA+(sy) | 17.000.000.000 | 100,00 | 17.300.900.000 | 8,85 | 04-Jul-30 | 0,19
+Ijarah | Berkelanjutan | III | XL | Axiata
+I | B | 2022 | AA+(idn) | 15.000.000.000 | 101,18 | 15.395.791.950 | 7,40 | 01-Sep-27 | 0,17
+Mudharabah | Berkelanjutan | V
+Adira | Finance | I | B | 2023 | idAAA(sy) | 15.000.000.000 | 100,00 | 15.070.917.600 | 6,00 | 07-Jul-26 | 0,16
+Mudharabah | Berkelanjutan | I | Dian
+Swastatika | Sentosa | I | A | 2024 | idAA(sy) | 13.200.000.000 | 100,79 | 13.606.429.320 | 8,25 | 18-Apr-27 | 0,15
+Mudharabah | Berkelanjutan | II
+Indah | Kiat | Pulp | & | Paper | IV
+B | 2023 | idA+(sy) | 11.000.000.000 | 101,33 | 11.039.584.270 | 10,50 | 27-Jan-26 | 0,12
+Wakalah | Berkelanjutan | I | Petrindo
+Jaya | Kreasi | II | A | 2025 | idA(sy) | 10.835.000.000 | 99,90 | 11.026.729.659 | 8,50 | 24-Okt-30 | 0,12
+Mudharabah | Berwawasan | Sosial
+Orange | Berkelanjutan | I | PNM | II
+B | 2025 | idAAA(sy) | 11.000.000.000 | 99,96 | 10.992.137.750 | 5,75 | 17-Okt-28 | 0,12
+- | 14 | -
+REKSA | DANA | SYARIAH | TRIMEGAH | DANA | TETAP | SYARIAH
+Catatan | atas | Laporan | Keuangan
+Untuk | Tahun-tahun | yang | Berakhir | 31 | Desember | 2025 | dan | 2024
+(Angka-angka | Disajikan | dalam | Rupiah, | kecuali | Dinyatakan | Lain)
+2025
+Persentase
+Harga | Tingkat | terhadap
+perolehan | bagi | Jatuh | jumlah
+Jenis | efek | Peringkat | Nilai | nominal | rata-rata | Nilai | wajar | hasil | tempo | portofolio | efek
+% | % | %
+Sukuk | Diukur | pada | Nilai | Wajar
+melalui | Laba | Rugi
+Sukuk
+Mudharabah | Berkelanjutan | I | OKI
+Pulp | & | Paper | Mills | I | B | 2023 | idA+(sy) | 10.000.000.000 | 108,76 | 10.913.571.300 | 11,00 | 12-Okt-28 | 0,12
+Ijarah | Berkelanjutan | I | Petrosea
+I | D | 2024 | idA+(sy) | 10.000.000.000 | 106,00 | 10.740.660.900 | 9,50 | 13-Des-31 | 0,12
+Ijarah | Berkelanjutan | I | Kereta | Api
+Indonesia | I | A | 2022 | idAAA(sy) | 10.000.000.000 | 100,18 | 10.245.396.400 | 7,10 | 05-Agu-27 | 0,11
+Mudharabah | Berkelanjutan | I | Dian
+Swastatika | Sentosa | II | B | 2024 | idAA(sy) | 8.000.000.000 | 100,60 | 8.297.916.560 | 8,50 | 05-Jun-27 | 0,09
+Surat | Berharga | Syariah
+Negara | PBS022 | - | 6.342.000.000 | 110,52 | 7.352.889.686 | 8,625 | 15-Apr-34 | 0,08
+Ijarah | Berkelanjutan | II | Aneka
+Gas | Industri | IV | B | 2021 | A(idn) | 6.710.000.000 | 100,42 | 6.859.662.591 | 9,15 | 22-Des-26 | 0,07
+Mudharabah | Berkelanjutan | I | Indah
+Kiat | Pulp | & | Paper | II | C | 2021 | idA+(sy) | 5.400.000.000 | 101,88 | 5.514.847.200 | 9,25 | 08-Des-26 | 0,06
+Mudharabah | Berkelanjutan | I | Indah
+Kiat | Pulp | & | Paper | I | C | 2021 | idA+(sy) | 5.000.000.000 | 102,65 | 5.128.575.450 | 10,00 | 30-Sep-26 | 0,06
+Surat | Berharga | Syariah
+Negara | PBS015 | - | 4.000.000.000 | 112,01 | 4.572.600.000 | 8,00 | 15-Jul-47 | 0,05
+Mudharabah | Berkelanjutan | IV
+Indah | Kiat | Pulp | & | Paper | I
+B | 2024 | idA+(sy) | 4.000.000.000 | 101,10 | 4.542.893.920 | 10,75 | 04-Okt-29 | 0,05
+Mudharabah | Berwawasan | Sosial
+Orange | Berkelanjutan | I | PNM | II
+C | 2025 | idAAA(sy) | 4.000.000.000 | 99,98 | 3.969.956.880 | 6,00 | 17-Okt-30 | 0,04
+Mudharabah | Berkelanjutan | IV
+Indah | Kiat | Pulp | & | Paper | I
+A | 2024 | idA+(sy) | 2.000.000.000 | 103,55 | 2.137.201.920 | 10,25 | 04-Okt-27 | 0,02
+Ijarah | Berkelanjutan | III | Samator
+Indo | Gas | I | A | 2023 | A(idn) | 300.000.000 | 100,00 | 301.748.577 | 7,40 | 10-Okt-26 | 0,00
+Jumlah | 8.667.819.000.000 | 8.865.468.452.885 | 95,50
+2024
+Persentase

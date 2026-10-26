@@ -20,7 +20,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from . import factsheet
+from . import factsheet, prospectus
 from .products import is_syariah
 
 DATA = Path(__file__).parent.parent / "data"
@@ -433,6 +433,61 @@ def run(dry_run: bool = False, log=print) -> RefreshReport:
     return report
 
 
+PROSPECTUS_FILE = DATA / "prospectus.csv"
+PROSPECTUS_COLUMNS = ["product_id", "name", "file", "url", "position_date", "n_bonds", "parsed_pct", "reported_total_pct", "reconciled",
+                      "gov_pct", "corp_pct", "investment_grade_pct", "unrated_pct", "wam_years", "ratings", "policy", "fetched"]
+
+
+def run_prospectus(log=print) -> tuple[pd.DataFrame, list[str]]:
+    """Read the newest prospectus of every bond fund into data/prospectus.csv (PDFs cached under data/cache/).
+
+    A fund that fails keeps its previous row and is named in the warnings; nothing is guessed. Figures derived from the
+    portfolio table are stored only when the parsed total matches the document's own 'Jumlah' line."""
+    funds = _read(FILES["funds"])
+    if funds is None:
+        raise RuntimeError("data/products.csv belum ada; jalankan pembaruan data penuh dulu.")
+    old = _read(PROSPECTUS_FILE)
+    previous = {} if old is None else {r["product_id"]: r for r in old.to_dict("records")}
+    bonds = funds[funds["category"] == "pendapatan_tetap"]
+    rows, warnings = [], []
+    for n, row in enumerate(bonds.to_dict("records"), 1):
+        log(f"Prospektus {n}/{len(bonds)}: {row['name']}")
+        try:
+            facts = prospectus.read_fund(row["product_id"], log=log)
+        except Exception as e:  # network, missing document, or a missing PDF library
+            warnings.append(f"{row['name']} ({str(e)[:70]})")
+            if row["product_id"] in previous:
+                rows.append(previous[row["product_id"]])
+            continue
+        rows.append({
+            "product_id": row["product_id"], "name": row["name"], "file": facts["file"], "url": facts["url"],
+            "position_date": facts["position_date"].isoformat() if facts["position_date"] else None, "n_bonds": facts["n_bonds"],
+            "parsed_pct": facts["parsed_pct"], "reported_total_pct": facts["reported_total_pct"], "reconciled": facts["reconciled"],
+            "gov_pct": facts["gov_pct"], "corp_pct": facts["corp_pct"], "investment_grade_pct": facts["investment_grade_pct"],
+            "unrated_pct": facts["unrated_pct"], "wam_years": facts["wam_years"],
+            "ratings": json.dumps(facts["ratings"], ensure_ascii=False) if facts["ratings"] else None,
+            "policy": json.dumps(facts["policy"], ensure_ascii=False), "fetched": facts["fetched"],
+        })
+    out = pd.DataFrame(rows, columns=PROSPECTUS_COLUMNS)
+    tmp = PROSPECTUS_FILE.with_suffix(".tmp")
+    out.to_csv(tmp, index=False, encoding="utf-8")
+    tmp.replace(PROSPECTUS_FILE)
+    return out, warnings
+
+
+def prospectus_summary(out: pd.DataFrame, warnings: list[str]) -> str:
+    ok = int(out["reconciled"].fillna(False).astype(bool).sum()) if len(out) else 0
+    lines = [f"Prospektus dibaca untuk {len(out)} dana obligasi; tabel portofolio cocok dengan total di dokumen untuk {ok}.",
+             "Posisi portofolio mengikuti laporan keuangan di prospektus (akhir tahun buku), bukan kondisi hari ini."]
+    unreconciled = out[~out["reconciled"].fillna(False).astype(bool)]["name"].tolist() if len(out) else []
+    if unreconciled:
+        lines.append(f"Peringatan: {len(unreconciled)} dana tabelnya belum terbaca utuh (angka turunan tidak disimpan): "
+                     + ", ".join(unreconciled[:4]) + (" ..." if len(unreconciled) > 4 else ""))
+    if warnings:
+        lines.append(f"Peringatan: {len(warnings)} dana gagal diproses, baris lama dipertahankan: " + ", ".join(warnings[:3]))
+    return "\n".join(lines)
+
+
 def run_factsheets_only(log=print) -> RefreshReport:
     """Re-read only the fund fact sheets into the current products.csv (no browser, prices untouched)."""
     old = _read(FILES["funds"])
@@ -451,9 +506,14 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Perbarui data produk Bibit di folder data/.")
     ap.add_argument("--dry-run", action="store_true", help="hanya tampilkan perubahan, jangan tulis file")
     ap.add_argument("--factsheets-only", action="store_true", help="hanya baca ulang fund fact sheet, harga tidak disentuh")
+    ap.add_argument("--prospectus", action="store_true",
+                    help="baca prospektus terbaru dana obligasi (jarang berubah; PDF di-cache di data/cache)")
     args = ap.parse_args(argv)
     try:
         log = lambda msg: print(msg, file=sys.stderr)  # noqa: E731  progress -> stderr
+        if args.prospectus:
+            print(prospectus_summary(*run_prospectus(log)))
+            return 0
         report = run_factsheets_only(log) if args.factsheets_only else run(dry_run=args.dry_run, log=log)
     except Exception as e:  # network, browser, or page-layout problems
         print(f"GAGAL memperbarui data: {e}", file=sys.stderr)

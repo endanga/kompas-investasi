@@ -20,6 +20,7 @@ data/*.db
 
 # Local snapshots made by the product refresh and by CSV edits (public data, but large and noisy)
 data/archive/
+data/cache/
 *.tmp
 
 # Local secrets folder

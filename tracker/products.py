@@ -34,10 +34,30 @@ def is_syariah(name: str) -> bool:
     return bool(SYARIAH_WORDS.search(str(name)))
 
 
+PROSPECTUS_FILE = PRODUCTS_FILE.parent / "prospectus.csv"
+PROSPECTUS_SHOWN = ["position_date", "reconciled", "gov_pct", "corp_pct", "investment_grade_pct", "unrated_pct", "wam_years",
+                    "ratings", "policy", "file", "url", "fetched"]
+
+
+def load_prospectus() -> pd.DataFrame | None:
+    """Facts read from prospectuses (data/prospectus.csv), or None when the file is missing, empty or unreadable."""
+    try:
+        if not PROSPECTUS_FILE.exists() or PROSPECTUS_FILE.stat().st_size == 0:
+            return None
+        df = pd.read_csv(PROSPECTUS_FILE)
+    except Exception:  # a broken optional file must never take the app down
+        return None
+    return df if "product_id" in df.columns and not df.empty else None
+
+
 def load_products() -> pd.DataFrame:
     df = pd.read_csv(PRODUCTS_FILE)
     if "name" in df.columns:  # recomputed on every load, so an older snapshot gets the corrected rule without a new refresh
         df["syariah_dari_nama"] = ["ya" if is_syariah(n) else "tidak" for n in df["name"]]
+    pros = load_prospectus()
+    if pros is not None and "product_id" in df.columns:
+        keep = pros[["product_id"] + [c for c in PROSPECTUS_SHOWN if c in pros.columns]].drop_duplicates("product_id")
+        df = df.merge(keep.rename(columns={c: f"pros_{c}" for c in PROSPECTUS_SHOWN}), on="product_id", how="left")
     return df
 
 
